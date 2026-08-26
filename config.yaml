@@ -1,0 +1,71 @@
+# Configuração do Projeto Datathon
+
+project:
+  name: "Datathon - Plataforma de Experimentação Adaptativa"
+  version: "0.1.0"
+  phase: 1  # Fase atual do projeto
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  target_column: "y"  # Mude conforme sua base
+  test_size: 0.2
+  random_state: 42
+
+baseline:
+  name: "deterministic_greedy"
+  description: "Baseline: sempre oferece o melhor braço histórico"
+
+adaptive_model:
+  algorithm: "thompson_sampling"  # Opções: thompson_sampling, epsilon_greedy, ucb
+
+  # Thompson Sampling
+  thompson:
+    alpha: 1.0  # Prior alpha (sucessos)
+    beta: 1.0   # Prior beta (fracassos)
+
+  # Epsilon-Greedy
+  epsilon_greedy:
+    epsilon: 0.1
+    decay_rate: 0.995
+
+  # UCB
+  ucb:
+    c: 1.25  # Constante de exploração
+
+training:
+  n_episodes: 1000
+  n_arms: 3  # Número de ofertas/braços
+  test_size: 0.2
+
+evaluation:
+  metrics:
+    - "conversion_rate"
+    - "regret"
+    - "exploration_rate"
+
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "datathon_adaptive_offers"
+
+model_save:
+  format: "pickle"  # pickle, joblib, h5
+  path: "models/model.pkl"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: true
+
+# Golden Set - 5 casos de teste
+golden_set:
+  - client_id: 1
+    expected_offer: "oferta_premium"
+  - client_id: 2
+    expected_offer: "oferta_standard"
+  - client_id: 3
+    expected_offer: "oferta_premium"
+  - client_id: 4
+    expected_offer: "oferta_basica"
+  - client_id: 5
+    expected_offer: "oferta_standard"
