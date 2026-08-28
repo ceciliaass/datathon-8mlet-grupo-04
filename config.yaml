@@ -17,16 +17,10 @@ baseline:
   description: "Baseline: sempre oferece o melhor braço histórico"
 
 adaptive_model:
-  algorithm: "thompson_sampling"  # Opções: thompson_sampling, epsilon_greedy, ucb
+  algorithm: "epsilon_greedy"
 
-  # Thompson Sampling
-  thompson:
-    alpha: 1.0  # Prior alpha (sucessos)
-    beta: 1.0   # Prior beta (fracassos)
-
-  # Epsilon-Greedy
   epsilon_greedy:
-    epsilon: 0.1
+    epsilon: 0.02
     decay_rate: 0.995
 
   # UCB

@@ -1,11 +1,11 @@
-| ![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MLflow](https://img.shields.io/badge/MLOps-MLflow-0194E2?logo=mlflow) ![Thompson Sampling](https://img.shields.io/badge/Algorithm-Thompson%20Sampling-blue.svg) ![Scikit-learn](https://img.shields.io/badge/ML-Scikit--learn-F7931E?logo=scikit-learn) ![Status](https://img.shields.io/badge/Status-Fase%201-green.svg) |
+| ![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MLflow](https://img.shields.io/badge/MLOps-MLflow-0194E2?logo=mlflow) ![Epsilon-Greedy](https://img.shields.io/badge/Algorithm-Epsilon--Greedy-blue.svg) ![Scikit-learn](https://img.shields.io/badge/ML-Scikit--learn-F7931E?logo=scikit-learn) ![Status](https://img.shields.io/badge/Status-Fase%201-green.svg) |
 |:----------------------------------------------------------------------------------------------------------------------------------------:|
 
 # 🎯 Datathon — Plataforma de Experimentação Adaptativa para Ofertas Financeiras
 
 ## 📌 Descrição
 
-Solução completa **end-to-end** para personalização adaptativa de ofertas financeiras usando **Thompson Sampling** (Multi-Armed Bandit). Plataforma que aprende continuamente qual oferta cada cliente prefere, otimizando taxas de conversão em tempo real.
+Solução completa **end-to-end** para personalização adaptativa de ofertas financeiras usando **Epsilon-Greedy** (Multi-Armed Bandit). Plataforma que aprende continuamente qual oferta cada cliente prefere, otimizando taxas de conversão em tempo real.
 
 ---
 
@@ -14,7 +14,7 @@ Solução completa **end-to-end** para personalização adaptativa de ofertas fi
 | Fase | Objetivo | Status |
 |------|----------|--------|
 | **Fase 1** | EDA e Preparação de Dados | ✅ Em andamento |
-| **Fase 2** | Baseline + Thompson Sampling | ⏳ Próximo |
+| **Fase 2** | Baseline + Epsilon-Greedy | ⏳ Próximo |
 | **Fase 3** | Avaliação e Golden Set | ⏳ Pendente |
 | **Fase 4** | API FastAPI | ⏳ Pendente |
 | **Fase 5** | MLflow Tracking | ⏳ Pendente |
@@ -22,18 +22,15 @@ Solução completa **end-to-end** para personalização adaptativa de ofertas fi
 
 ---
 
-## 📊 Dados Disponíveis (4 Bases)
+## 📊 Base de Dados
 
-Sistema automático baixa **todas as 4 bases** com **cache inteligente**:
+O projeto utiliza a base Kaggle abaixo com cache local:
 
 | Base | Autor | Registros | Status |
 |------|-------|-----------|--------|
-| 1️⃣ Bank Marketing | henriqueyamahata | ~41k | ✅ Funcionando |
-| 2️⃣ Bank Marketing Dataset | hariharanpavan | ~45k | ✅ Funcionando |
-| 3️⃣ Bank Term Deposit | dharmik34 | ~11k | ✅ Funcionando |
-| 4️⃣ Telemarketing JYB | aguado | ~4k | ✅ Funcionando |
+| 1️⃣ Bank Marketing | [henriqueyamahata](https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing) | ~41k | ✅ Funcionando |
 
-**Cache:** Primeira execução baixa dados (~20s). Próximas execuções usam cache (~4s). ⚡
+**Leakage:** `duration` é removida por ser conhecida somente após a ligação. `pdays`, `previous` e `poutcome` são mantidas como histórico anterior ao contato.
 
 ---
 
@@ -77,7 +74,7 @@ jupyter notebook notebooks/01_EDA.ipynb
 # Célula 7-12️⃣: Processa e salva
 ```
 
-**Resultado:** `data/processed/{dataset}/data_processed.csv` ✅
+**Resultado:** `data/processed/bank-marketing_eda/bank_marketing_tratado.csv` ✅
 
 ---
 
@@ -100,10 +97,7 @@ mle_tech_chalenge_5/
 ├── 📊 data/
 │   ├── raw/                            ← Dados brutos (não versiona)
 │   └── processed/                      ← Dados processados (não versiona)
-│       ├── bank-marketing/
-│       ├── bank-marketing-dataset-analysis/
-│       ├── bank-term-deposit-subscription/
-│       └── telemarketing-jyb-dataset/
+│       └── bank-marketing_eda/
 │
 ├── 🎛️ models/
 │   ├── scaler_*.pkl                    ← StandardScaler por dataset (não versiona)
@@ -150,7 +144,7 @@ mle_tech_chalenge_5/
    ├─ scaler_{dataset}.pkl
    └─ label_encoders_{dataset}.pkl
    ↓
-5. Pronto para Fase 2 (Baseline + Thompson)
+5. Pronto para Fase 2 (Baseline + Epsilon-Greedy)
 ```
 
 ---
@@ -230,9 +224,9 @@ Pelo `.gitignore`:
 
 ## 🎯 Próximas Fases
 
-### Fase 2: Baseline + Thompson Sampling
+### Fase 2: Baseline + Epsilon-Greedy
 - Implementar modelo baseline
-- Implementar Thompson Sampling
+- Implementar Epsilon-Greedy
 - Comparar performance
 - Gráficos de convergência
 

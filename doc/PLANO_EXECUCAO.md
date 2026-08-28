@@ -2,7 +2,7 @@
 
 ## 🎯 Objetivo
 
-Desenvolver uma **plataforma de experimentação adaptativa** usando **Thompson Sampling** (Multi-Armed Bandit) para personalização de ofertas financeiras em tempo real.
+Desenvolver uma **plataforma de experimentação adaptativa** usando **Epsilon-Greedy** (Multi-Armed Bandit) para personalização de ofertas financeiras em tempo real.
 
 ---
 
@@ -12,7 +12,7 @@ Desenvolver uma **plataforma de experimentação adaptativa** usando **Thompson 
 |------|----------|--------|-----------|
 | **Fase 0** | Setup & Organização | ✅ Completa | 100% |
 | **Fase 1** | EDA & Prep Dados | 🔄 Em andamento | 80% |
-| **Fase 2** | Baseline + Thompson | ⏳ Próximo | 0% |
+| **Fase 2** | Baseline + Epsilon-Greedy | ⏳ Próximo | 0% |
 | **Fase 3** | Avaliação & Golden Set | ⏳ Pendente | 0% |
 | **Fase 4** | API FastAPI | ⏳ Pendente | 0% |
 | **Fase 5** | MLflow Tracking | ⏳ Pendente | 0% |
@@ -56,8 +56,7 @@ Desenvolver uma **plataforma de experimentação adaptativa** usando **Thompson 
 
 | Base | Autor | Registros | Status |
 |------|-------|-----------|--------|
-| 1️⃣ Bank Marketing | henriqueyamahata | ~41k | ✅ Testado |
-| 2️⃣ Bank Marketing Dataset | hariharanpavan | ~45k | ✅ Testado |
+| 1️⃣ Bank Marketing | [henriqueyamahata](https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing) | ~41k | ✅ Testado |
 | 3️⃣ Bank Term Deposit | dharmik34 | ~11k | ✅ Testado |
 | 4️⃣ Telemarketing JYB | aguado | ~4k | ✅ Testado |
 
@@ -124,13 +123,13 @@ models/
 
 ---
 
-## ⏳ FASE 2: Baseline + Thompson Sampling
+## ⏳ FASE 2: Baseline + Epsilon-Greedy
 
 ### Status: ⏳ Não iniciado
 
 ### Objetivos
 - Implementar modelo baseline determinístico
-- Implementar Thompson Sampling
+- Implementar Epsilon-Greedy
 - Simular 1000 rounds de recomendações
 - Gráficos de convergência e exploração
 - Validação com Golden Set (5 clientes)
@@ -138,7 +137,7 @@ models/
 ### Componentes a Criar
 ```
 src/baseline.py              ← Modelo baseline
-src/adaptive_model.py        ← Thompson Sampling
+src/adaptive_model.py        ← Epsilon-Greedy
 notebooks/02_Baseline_e_Adaptativo.ipynb ← Notebook fase 2
 ```
 
@@ -155,7 +154,7 @@ notebooks/02_Baseline_e_Adaptativo.ipynb ← Notebook fase 2
 
 ### Objetivos
 - Selecionar 5 clientes representativos
-- Gerar recomendações com Thompson
+- Gerar recomendações com Epsilon-Greedy
 - Validação manual de coerência
 - Análise comparativa com baseline
 
@@ -261,7 +260,7 @@ GET /health         ← Status da API
 
 ```
 Semana 1-2:  Fase 0 + Fase 1 (EDA)           ✅ Em andamento
-Semana 2-3:  Fase 2 (Baseline + Thompson)    ⏳ Próximo
+Semana 2-3:  Fase 2 (Baseline + Epsilon-Greedy)    ⏳ Próximo
 Semana 3-4:  Fase 3-4 (Avaliação + API)      ⏳ Pendente
 Semana 4-5:  Fase 5-6 (MLflow + Cloud)       ⏳ Pendente
 Semana 5-6:  Fase 7-8 (Docs + Demo)          ⏳ Pendente
@@ -297,7 +296,7 @@ Total: ██████████░░░░░░░░░░  27% 🚀
 3. 📝 Documentar resultados EDA
 
 ### Curto Prazo (Próximas 2 semanas)
-1. ⏳ Iniciar Fase 2 (Baseline + Thompson)
+1. ⏳ Iniciar Fase 2 (Baseline + Epsilon-Greedy)
 2. ⏳ Implementar comparação de modelos
 3. ⏳ Gráficos de convergência
 
