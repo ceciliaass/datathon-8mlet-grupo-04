@@ -4,7 +4,7 @@ Módulos de Machine Learning para Datathon - Tech Challenge Fase 5
 Pacotes:
 - data_processing: Funções de EDA e preparação de dados
 - baseline: Modelo baseline determinístico
-- adaptive_model: Algoritmo Thompson Sampling
+- adaptive_model: Algoritmo Epsilon-Greedy
 - api: API FastAPI para recomendações
 - inference: Script de inferência
 """

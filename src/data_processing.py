@@ -62,21 +62,19 @@ def find_temporal_leakage(df: pd.DataFrame, common_leakage_cols: Optional[List[s
 
     Args:
         df: DataFrame
-        common_leakage_cols: Lista de colunas suspeitas (padrão: duration, pdays, previous)
+        common_leakage_cols: Lista de colunas suspeitas (padrão: duration)
 
     Returns:
         Dicionário com colunas e recomendação (remove ou mantém)
     """
     if common_leakage_cols is None:
-        common_leakage_cols = ['duration', 'pdays', 'previous', 'poutcome']
+        common_leakage_cols = ['duration']
 
     leakage_found = {}
     for col in common_leakage_cols:
         if col in df.columns:
             if col == 'duration':
                 leakage_found[col] = 'REMOVER (tempo da chamada - conhecida após decisão)'
-            elif col in ['previous', 'pdays', 'poutcome']:
-                leakage_found[col] = 'MANTER (histórico - OK para decisão)'
 
     return leakage_found
 

@@ -83,8 +83,7 @@ Use uma base Kaggle compatível com:
 
 | Base | Autor | Uso no Desafio |
 |------|-------|----------------|
-| **bank-marketing** | henriqueyamahata | Campanhas bancárias, propensão de conversão e decisão de oferta |
-| **bank-marketing-data-set** | tunguz | Variação do problema de marketing bancário para comparação |
+| **bank-marketing** | [henriqueyamahata](https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing) | Campanhas bancárias, propensão de conversão e decisão de oferta |
 | **bank-term-deposit-subscription** | dharmik34 | Assinatura de depósito a prazo como proxy de conversão |
 | **telemarketing-jyb-dataset** | aguado | Campanhas de contato e resposta, útil para comparação de canal |
 
