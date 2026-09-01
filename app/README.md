@@ -33,6 +33,20 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
+### MLflow local para tracking
+
+Antes de registrar experimentos e métricas, inicie o servidor MLflow em outro terminal:
+
+```bash
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./mlruns \
+  --host 0.0.0.0 \
+  --port 5000
+```
+
+A interface do MLflow fica disponível em `http://localhost:5000`.
+
 Na primeira execução, se `data/bandit_state.pkl` ainda não existir, o bandit
 é inicializado (warm start) com `arm_stats.csv` gerado pelo Notebook 2 — o
 mesmo ponto de partida usado no Notebook 3. Se esse arquivo não for

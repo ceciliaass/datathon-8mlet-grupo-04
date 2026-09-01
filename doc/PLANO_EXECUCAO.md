@@ -188,6 +188,19 @@ GET /health         ← Status da API
 - Log de parâmetros e métricas
 - Versionamento de modelos
 - Dashboard de experimentos
+- Visualização e comparação de runs em MLflow
+
+### Inicialização do servidor MLflow
+
+```bash
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./mlruns \
+  --host 0.0.0.0 \
+  --port 5000
+```
+
+A interface estará disponível em `http://localhost:5000`.
 
 ### Cronograma Estimado
 - Implementação: 1 dia
