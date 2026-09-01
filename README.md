@@ -64,7 +64,26 @@ kaggle datasets list | head -5
 
 **Guia detalhado:** `.kaggle/KAGGLE_SETUP.md`
 
-### 3️⃣ Executar Fase 1 (15 min)
+### 3️⃣ Iniciar servidor MLflow (opcional, mas recomendado)
+
+```bash
+# Terminal 1: sobe o servidor local do MLflow
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./mlruns \
+  --host 0.0.0.0 \
+  --port 5000
+```
+
+A interface será disponibilizada em: `http://localhost:5000`
+
+Se preferir apenas abrir a UI, sem iniciar o servidor em modo explícito, também funciona:
+
+```bash
+mlflow ui --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000
+```
+
+### 4️⃣ Executar Fase 1 (15 min)
 
 ```bash
 jupyter notebook notebooks/01_EDA.ipynb
@@ -241,9 +260,18 @@ Pelo `.gitignore`:
 - Documentação Swagger
 
 ### Fase 5: MLflow
+- Iniciar o servidor local do MLflow antes dos experimentos
 - Rastreamento de experimentos
 - Versionamento de modelos
-- Dashboard
+- Dashboard em `http://localhost:5000`
+
+```bash
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./mlruns \
+  --host 0.0.0.0 \
+  --port 5000
+```
 
 ---
 

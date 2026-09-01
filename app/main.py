@@ -23,6 +23,9 @@ Fluxo de uso:
        POST /feedback          -> atualiza o bandit com o resultado
     3) GET  /stats             -> acompanha a crença atual por braço
 """
+import os
+
+import mlflow
 from fastapi import FastAPI, HTTPException
 
 from app.bandit_store import bandit_store
@@ -32,6 +35,37 @@ from app.schemas import (
     FeedbackResponse,
     RecomendacaoResponse,
 )
+
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+mlflow.set_experiment("datathon-bandit-app")
+
+
+def _log_recommendation(decision_id: str, arm: str, client_context: dict | None) -> None:
+    try:
+        with mlflow.start_run(run_name="recomendacao") as _run:
+            mlflow.set_tag("decision_id", decision_id)
+            mlflow.set_tag("arm", arm)
+            mlflow.log_param("selected_arm", arm)
+            mlflow.log_param("client_context_present", bool(client_context))
+            if client_context:
+                mlflow.log_dict(client_context, "client_context.json")
+    except Exception:
+        # Falha do MLflow não deve quebrar a request da API; o bandit continua
+        # funcionando e o tracking pode ser refeito em outra execução do ambiente.
+        pass
+
+
+def _log_feedback(decision_id: str, arm: str, reward: int) -> None:
+    try:
+        with mlflow.start_run(run_name="feedback") as _run:
+            mlflow.set_tag("decision_id", decision_id)
+            mlflow.set_tag("arm", arm)
+            mlflow.log_param("reward", reward)
+            mlflow.log_metric("conversion_observed", float(reward))
+    except Exception:
+        pass
+
 
 app = FastAPI(
     title="Bandit Adaptativo - Canal de Contato",
@@ -59,6 +93,11 @@ def recomendar(contexto: ClienteContexto | None = None) -> RecomendacaoResponse:
     """
     contexto_dict = contexto.model_dump() if contexto else None
     resultado = bandit_store.recommend(client_context=contexto_dict)
+    _log_recommendation(
+        decision_id=resultado["decision_id"],
+        arm=resultado["arm"],
+        client_context=contexto_dict,
+    )
     return RecomendacaoResponse(**resultado)
 
 
@@ -79,6 +118,11 @@ def feedback(payload: FeedbackRequest) -> FeedbackResponse:
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
+    _log_feedback(
+        decision_id=resultado["decision_id"],
+        arm=resultado["arm"],
+        reward=resultado["reward"],
+    )
     return FeedbackResponse(**resultado)
 
 
