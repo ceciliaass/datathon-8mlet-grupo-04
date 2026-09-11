@@ -26,7 +26,7 @@ Fluxo de uso:
 import os
 
 import mlflow
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 
 from app.bandit_store import bandit_store
 from app.schemas import (
@@ -39,6 +39,11 @@ from app.schemas import (
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_experiment("datathon-bandit-app")
+
+# Gera uma recomendação de exemplo para popular os exemplos da documentação
+# (permite que o botão "Try it out" em /docs use um `decision_id` válido).
+_example = bandit_store.recommend(client_context={"example": True})
+EXAMPLE_DECISION_ID = _example["decision_id"]
 
 
 def _log_recommendation(decision_id: str, arm: str, client_context: dict | None) -> None:
@@ -84,7 +89,10 @@ def health() -> dict:
 
 
 @app.post("/recomendar", response_model=RecomendacaoResponse)
-def recomendar(contexto: ClienteContexto | None = None) -> RecomendacaoResponse:
+def recomendar(contexto: ClienteContexto | None = Body(
+    None,
+    example={"idade": 35, "poutcome": "unknown", "previous": 1},
+),) -> RecomendacaoResponse:
     """Recomenda o canal de contato para um cliente e registra a decisão.
 
     O contexto do cliente é opcional nesta versão (o bandit ainda não é
@@ -102,7 +110,10 @@ def recomendar(contexto: ClienteContexto | None = None) -> RecomendacaoResponse:
 
 
 @app.post("/feedback", response_model=FeedbackResponse)
-def feedback(payload: FeedbackRequest) -> FeedbackResponse:
+def feedback(payload: FeedbackRequest = Body(
+    ...,
+    example={"decision_id": EXAMPLE_DECISION_ID, "converteu": True},
+)) -> FeedbackResponse:
     """Registra o resultado real de uma recomendação e atualiza o bandit.
 
     Deve ser chamado assim que o desfecho da interação for conhecido (ex.:

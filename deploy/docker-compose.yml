@@ -17,10 +17,11 @@ services:
     networks:
       - datathon_net
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
   fastapi:
@@ -39,13 +40,16 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
     networks:
       - datathon_net
+    # readiness: requires both the app health endpoint and MLflow reachable
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
-      interval: 15s
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1; curl -f http://mlflow:5000/ || exit 1"]
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
 networks:
