@@ -83,6 +83,61 @@ Se preferir apenas abrir a UI, sem iniciar o servidor em modo explícito, també
 mlflow ui --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000
 ```
 
+### 🚢 Docker Compose — subir FastAPI + MLflow (recomendado)
+
+Se preferir rodar a API e o MLflow juntos via Docker Compose (recomendado para demo/entorno local):
+
+```bash
+# 1. Clone o repositório
+git clone <repo-url> datathon-8mlet-grupo-04
+cd datathon-8mlet-grupo-04
+
+# 2. Build das imagens (usa Dockerfile em deploy/)
+docker compose -f deploy/docker-compose.yml build
+
+# 3. Subir os serviços (detached)
+docker compose -f deploy/docker-compose.yml up -d --force-recreate
+
+# 4. Verificar status e logs
+docker compose -f deploy/docker-compose.yml ps
+docker compose -f deploy/docker-compose.yml logs -f --tail=200
+```
+
+URLs após o compose subir:
+- FastAPI (API + docs): http://localhost:8000/  — docs: http://localhost:8000/docs
+- MLflow UI (host): http://localhost:5002/  (o compose mapeia a porta do container 5000 para 5002 quando 5000 está ocupado no host)
+
+Persistência e migração do DB:
+
+```bash
+# Executar migração do banco SQLite do MLflow (caso veja erro de schema):
+docker compose -f deploy/docker-compose.yml exec -T mlflow mlflow db upgrade sqlite:///mlflow.db
+
+# Fazer backup antes de alterações:
+cp deploy/mlflow.db deploy/mlflow.db.bak
+tar -czf deploy/mlruns-backup.tar.gz deploy/mlruns
+```
+
+Notas rápidas:
+- O `deploy/docker-compose.yml` monta `./mlruns` e `./mlflow.db` para persistência local.
+- Se quiser mapear MLflow para `localhost:5000` altere `ports` em `deploy/docker-compose.yml` e libere a porta no host.
+
+## 🛠️ Deploy rápido (Docker Compose)
+
+Se você clonou este repositório e quer subir a API e o MLflow rapidamente, siga:
+
+```bash
+cd datathon-8mlet-grupo-04
+docker compose -f deploy/docker-compose.yml build
+docker compose -f deploy/docker-compose.yml up -d --force-recreate
+
+# Ver status
+docker compose -f deploy/docker-compose.yml ps
+```
+
+Mais detalhes operacionais e comandos úteis (backup/migração/restore) estão em [deploy/README.md](deploy/README.md).
+
+
 ### 4️⃣ Executar Fase 1 (15 min)
 
 ```bash
