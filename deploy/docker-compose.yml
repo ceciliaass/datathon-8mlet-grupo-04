@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+  mlflow:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.mlflow
+    container_name: datathon_mlflow
+    volumes:
+      - ../mlruns:/app/mlruns
+      - ../mlflow.db:/app/mlflow.db
+      - ..:/app:cached
+    ports:
+      - "5002:5000"
+    environment:
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/app/mlruns
+      - MLFLOW_BACKEND_STORE_URI=sqlite:////app/mlflow.db
+    networks:
+      - datathon_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  fastapi:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.fastapi
+    container_name: datathon_fastapi
+    depends_on:
+      - mlflow
+    # compartilhando os mesmos binds para que ambos acessem mlruns e o projeto
+    volumes:
+      - ../mlruns:/app/mlruns
+      - ../mlflow.db:/app/mlflow.db
+      - ..:/app:cached
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - datathon_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  datathon_net:
+    name: datathon_net
+
+volumes: {}
