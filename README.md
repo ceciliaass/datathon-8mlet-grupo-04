@@ -69,95 +69,10 @@ kaggle datasets list | head -5
 
 **Guia detalhado:** `.kaggle/KAGGLE_SETUP.md`
 
-### 3️⃣ Iniciar servidor MLflow (opcional, mas recomendado)
+### 3️⃣ Rodar os notebooks (EDA → Baseline → Avaliação)
 
 ```bash
-# Terminal 1: sobe o servidor local do MLflow
-mlflow server \
-  --backend-store-uri sqlite:///mlflow.db \
-  --default-artifact-root ./mlruns \
-  --host 0.0.0.0 \
-  --port 5000
-```
-
-A interface será disponibilizada em: `http://localhost:5000`
-
-Se preferir apenas abrir a UI, sem iniciar o servidor em modo explícito, também funciona:
-
-```bash
-mlflow ui --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000
-```
-
-### 🚢 Docker Compose — subir FastAPI + MLflow (recomendado)
-
-Se preferir rodar a API e o MLflow juntos via Docker Compose (recomendado para demo/entorno local):
-
-```bash
-# 1. Clone o repositório
-git clone <repo-url> datathon-8mlet-grupo-04
-cd datathon-8mlet-grupo-04
-
-# 2. Build das imagens (usa Dockerfile em deploy/)
-docker compose -f deploy/docker-compose.yml build
-
-# 3. Subir os serviços (detached)
-docker compose -f deploy/docker-compose.yml up -d --force-recreate
-
-# 4. Verificar status e logs
-docker compose -f deploy/docker-compose.yml ps
-docker compose -f deploy/docker-compose.yml logs -f --tail=200
-```
-
-URLs após o compose subir:
-- FastAPI (API + docs): http://localhost:8000/  — docs: http://localhost:8000/docs
-- MLflow UI (host): http://localhost:5002/  (o compose mapeia a porta do container 5000 para 5002 quando 5000 está ocupado no host)
-
-Persistência e migração do DB:
-
-```bash
-# Executar migração do banco SQLite do MLflow (caso veja erro de schema):
-docker compose -f deploy/docker-compose.yml exec -T mlflow mlflow db upgrade sqlite:///mlflow.db
-
-# Fazer backup antes de alterações:
-cp deploy/mlflow.db deploy/mlflow.db.bak
-tar -czf deploy/mlruns-backup.tar.gz deploy/mlruns
-```
-
-Notas rápidas:
-- O `deploy/docker-compose.yml` monta `./mlruns` e `./mlflow.db` para persistência local.
-- Se quiser mapear MLflow para `localhost:5000` altere `ports` em `deploy/docker-compose.yml` e libere a porta no host.
-
-## 🛠️ Deploy rápido (Docker Compose)
-
-Se você clonou este repositório e quer subir a API e o MLflow rapidamente, siga:
-
-```bash
-cd datathon-8mlet-grupo-04
-docker compose -f deploy/docker-compose.yml build
-docker compose -f deploy/docker-compose.yml up -d --force-recreate
-
-# Ver status
-docker compose -f deploy/docker-compose.yml ps
-```
-
-Mais detalhes operacionais e comandos úteis (backup/migração/restore) estão em [deploy/README.md](deploy/README.md).
-
----
-
-## ☁️ Arquitetura-Alvo em Nuvem (AWS)
-
-Partindo das imagens já existentes em `deploy/` (`Dockerfile.fastapi`, `Dockerfile.mlflow`), o caminho mais direto para colocar este projeto no ar na AWS é publicá-las no **Amazon ECR** e rodá-las como serviços no **Amazon ECS com Fargate** (containers gerenciados, sem servidor para administrar), com um **Application Load Balancer** expondo tanto a API FastAPI (porta 80) quanto a UI do MLflow (porta 5000) publicamente — a segunda sem autenticação, uma simplificação aceitável para um ambiente de demo de curta duração, não para produção real. Os dados brutos e processados do Kaggle (hoje em `data/`) iriam para um bucket **S3**, e o pipeline de EDA/treino dos notebooks poderia rodar como tarefa agendada no próprio ECS, sem alterar o código.
-
-O ponto que mais muda em relação ao ambiente local é o estado: hoje o bandit persiste em um arquivo pickle (`data/bandit_state.pkl`) e o MLflow usa SQLite local — o que só funciona com uma única réplica, como já registrado nas limitações do [app/README.md](app/README.md). Na AWS, tanto os contadores do bandit quanto o log de decisões migrariam para o **DynamoDB**: o padrão de acesso real (grava decisão pendente, depois busca por `decision_id` e atualiza com o resultado) é get/update por chave primária, que o DynamoDB atende nativamente via `PutItem`/`GetItem`/`UpdateItem` — diferente de um object store como o S3, que fica reservado para os artifacts do MLflow. O MLflow passaria a usar **RDS PostgreSQL** como backend store e **S3** como artifact store, permitindo escalar a API horizontalmente sem perder consistência. Observabilidade (logs, métricas e alarmes de erro/latência) ficaria centralizada no **CloudWatch**, e credenciais sensíveis (ex.: senha do RDS) no **Secrets Manager**.
-
-**Implementação real:** o Terraform completo dessa arquitetura (ECR, ECS Fargate, ALB, DynamoDB, RDS, S3, CloudWatch, Secrets Manager, IAM) vive em [deploy/aws/](deploy/aws/), com runbook de deploy/verificação/teardown em [deploy/aws/README.md](deploy/aws/README.md).
-
----
-
-### 4️⃣ Rodar os notebooks (EDA → Baseline → Avaliação)
-
-```bash
-jupyter notebook notebooks/01_EDA.ipynb              # Etapa 1: EDA (bank-term-deposit-subscription)
+jupyter notebook notebooks/01_EDA.ipynb                 # Etapa 1: EDA (bank-term-deposit-subscription)
 jupyter notebook notebooks/02_Preparacao_da_Base.ipynb  # Etapa 2: features + target
 jupyter notebook notebooks/03_Baseline_e_Thompson.ipynb # Etapa 3: baseline vs. Thompson Sampling + tracking MLflow
 jupyter notebook notebooks/04_Avaliacao_e_Golden_Set.ipynb # Etapa 4: métricas + Golden Set
@@ -167,9 +82,78 @@ jupyter notebook notebooks/04_Avaliacao_e_Golden_Set.ipynb # Etapa 4: métricas 
 
 ---
 
-### 5️⃣ Deploy real na AWS (opcional)
+## 🖥️ Como usar a API (Etapa 5)
 
-O serviço também está implementado para rodar na AWS de verdade (ECR + ECS Fargate + ALB, DynamoDB, RDS, S3, CloudWatch, Secrets Manager, tudo via Terraform). Runbook completo (criação do usuário IAM, deploy, verificação, pausa sem destruir, teardown e custo estimado) em [deploy/aws/README.md](deploy/aws/README.md).
+O serviço (`app/`) é o mesmo em ambos os casos — só muda onde ele está rodando. Endpoints disponíveis: `GET /docs` (Swagger), `GET /health`, `POST /recomendar`, `POST /feedback`, `GET /stats`.
+
+### Opção 1 — Local via Docker Compose (desenvolvimento)
+
+```bash
+git clone <repo-url> datathon-8mlet-grupo-04
+cd datathon-8mlet-grupo-04
+
+docker compose -f deploy/docker-compose.yml build
+docker compose -f deploy/docker-compose.yml up -d --force-recreate
+
+# Status e logs
+docker compose -f deploy/docker-compose.yml ps
+docker compose -f deploy/docker-compose.yml logs -f --tail=200
+```
+
+**Endpoints locais:**
+
+| Serviço | URL |
+|---|---|
+| API FastAPI (docs) | http://localhost:8000/docs |
+| API FastAPI (health) | http://localhost:8000/health |
+| MLflow UI | http://localhost:5002/ |
+
+> O compose mapeia a porta do container do MLflow (5000) para `5002` no host, para não colidir se você já tiver algo rodando na 5000.
+
+Alternativa mais leve, sem Docker (só o MLflow, rodando na porta 5000 nesse caso):
+```bash
+mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000
+```
+
+Persistência e migração do MLflow (SQLite):
+```bash
+docker compose -f deploy/docker-compose.yml exec -T mlflow mlflow db upgrade sqlite:///mlflow.db
+cp deploy/mlflow.db deploy/mlflow.db.bak && tar -czf deploy/mlruns-backup.tar.gz deploy/mlruns
+```
+
+Mais detalhes operacionais em [deploy/README.md](deploy/README.md).
+
+### Opção 2 — AWS (já implantado via Terraform)
+
+O mesmo serviço também está implantado de verdade na AWS (região `us-east-2`): ECS Fargate + Application Load Balancer, com o bandit persistido em DynamoDB (em vez do arquivo local) e o MLflow com backend em RDS PostgreSQL + artifacts em S3.
+
+**Endpoints AWS:**
+
+| Serviço | URL |
+|---|---|
+| API FastAPI (docs) | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com/docs |
+| API FastAPI (health) | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com/health |
+| MLflow UI | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com:5000/ |
+
+> ⚠️ **Este stack fica pausado (`desired_count=0` no ECS) fora das sessões de desenvolvimento/demo, para não gerar custo enquanto ninguém está usando** — os endpoints acima retornam erro (503 ou 403, dependendo do estado do target group) enquanto pausado. Se estiver pausado, retome com:
+> ```bash
+> export AWS_PROFILE=datathon AWS_REGION=us-east-2
+> aws ecs update-service --cluster datathon-bandit-cluster --service datathon-bandit-fastapi --desired-count 1
+> aws ecs update-service --cluster datathon-bandit-cluster --service datathon-bandit-mlflow  --desired-count 1
+> ```
+> Leva ~1-2 min para os endpoints responderem. Sem HTTPS e sem autenticação (aceitável para um ambiente de demo de curta duração, ver notas de segurança no runbook).
+
+Runbook completo (criar o usuário IAM, deploy do zero, verificação, pausar, destruir, custo estimado) em [deploy/aws/README.md](deploy/aws/README.md).
+
+---
+
+## ☁️ Arquitetura-Alvo em Nuvem (AWS) — por que essas escolhas
+
+Partindo das imagens já existentes em `deploy/` (`Dockerfile.fastapi`, `Dockerfile.mlflow`), o caminho mais direto para colocar este projeto no ar na AWS é publicá-las no **Amazon ECR** e rodá-las como serviços no **Amazon ECS com Fargate** (containers gerenciados, sem servidor para administrar), com um **Application Load Balancer** expondo tanto a API FastAPI (porta 80) quanto a UI do MLflow (porta 5000) publicamente — a segunda sem autenticação, uma simplificação aceitável para um ambiente de demo de curta duração, não para produção real. Os dados brutos e processados do Kaggle (hoje em `data/`) iriam para um bucket **S3**, e o pipeline de EDA/treino dos notebooks poderia rodar como tarefa agendada no próprio ECS, sem alterar o código.
+
+O ponto que mais muda em relação ao ambiente local é o estado: hoje o bandit persiste em um arquivo pickle (`data/bandit_state.pkl`) e o MLflow usa SQLite local — o que só funciona com uma única réplica, como já registrado nas limitações do [app/README.md](app/README.md). Na AWS, tanto os contadores do bandit quanto o log de decisões migrariam para o **DynamoDB**: o padrão de acesso real (grava decisão pendente, depois busca por `decision_id` e atualiza com o resultado) é get/update por chave primária, que o DynamoDB atende nativamente via `PutItem`/`GetItem`/`UpdateItem` — diferente de um object store como o S3, que fica reservado para os artifacts do MLflow. O MLflow passaria a usar **RDS PostgreSQL** como backend store e **S3** como artifact store, permitindo escalar a API horizontalmente sem perder consistência. Observabilidade (logs, métricas e alarmes de erro/latência) ficaria centralizada no **CloudWatch**, e credenciais sensíveis (ex.: senha do RDS) no **Secrets Manager**.
+
+**Implementação real:** o Terraform completo dessa arquitetura (ECR, ECS Fargate, ALB, DynamoDB, RDS, S3, CloudWatch, Secrets Manager, IAM) vive em [deploy/aws/](deploy/aws/).
 
 ---
 
