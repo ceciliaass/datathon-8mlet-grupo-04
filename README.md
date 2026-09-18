@@ -195,6 +195,7 @@ datathon-8mlet-grupo-04/
 │   ├── main.py                         ← Endpoints: /, /health, /recomendar, /feedback, /stats
 │   ├── bandit_store.py                 ← Persistência do bandit (backend "file" local ou "dynamodb" na AWS)
 │   ├── schemas.py
+│   ├── demo_client.py                  ← Script de exemplo consumindo a API
 │   ├── requirements.txt
 │   └── README.md                       ← Documentação do serviço
 │
@@ -220,8 +221,12 @@ datathon-8mlet-grupo-04/
 │
 ├── 📋 README.md                        ← Este arquivo
 ├── 📦 requirements.txt                 ← Dependências Python (notebooks)
+├── .env.example                        ← Template de variáveis de ambiente
+├── .python-version                     ← 3.12
 └── .gitignore
 ```
+
+> `config.yaml`/`config/config.yaml` e `deploy/PLAN.md` também existem no repo, mas são artefatos do planejamento inicial (fase 1) e não refletem o que foi de fato implementado — a fonte da verdade é `doc/PLANO_EXECUCAO.md`.
 
 ---
 
