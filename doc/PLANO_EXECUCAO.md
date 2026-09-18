@@ -44,7 +44,7 @@ Desenvolver uma **plataforma de experimentação adaptativa** usando **Thompson 
 
 ### Status: ✅ COMPLETA
 
-- ✅ Base escolhida: **Bank Marketing** ([henriqueyamahata](https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing), ~41k registros)
+- ✅ Base escolhida: **Bank Term Deposit Subscription** (`bank-full.csv`, [dharmik34](https://www.kaggle.com/datasets/dharmik34/bank-term-deposit-subscription)) — usada do início ao fim do projeto (EDA até a API), não só na Etapa 1 (correção: o notebook cita `contact` como coluna de braço já na EDA, é a mesma base do bandit)
 - ✅ `notebooks/01_EDA.ipynb`: download com cache, exploração de distribuição/correlações, análise de missings/outliers
 - ✅ **Vazamento temporal tratado:** `duration` removida; `pdays`, `previous`, `poutcome` mantidas como histórico pré-contato
 - ✅ Encoding categórico + normalização (`StandardScaler`)
@@ -270,11 +270,11 @@ Para começar, configure Kaggle:
 - ✅ Python 3.12+ obrigatório
 - ✅ Gitignore configurado para não subir dados
 - ✅ Cache automático para evitar re-downloads
-- ✅ Base Kaggle (Bank Marketing) testada e funcionando
-- ✅ Algoritmo adaptativo real: **Thompson Sampling** (não Epsilon-Greedy — o README principal ainda precisa ser corrigido nesse ponto)
-- ✅ API de serviço (Etapa 5) já em produção local via Docker Compose, com persistência e log de auditoria
+- ✅ Base Kaggle (Bank Term Deposit Subscription, dharmik34) testada e funcionando
+- ✅ Algoritmo adaptativo real: **Thompson Sampling** (README principal já corrigido — badge e texto atualizados)
+- ✅ API de serviço (Etapa 5) rodando local via Docker Compose **e na AWS de verdade** (ECS Fargate), com persistência e log de auditoria
 - ⚠️ Trabalho de deploy vive na branch `feature/deploy`, ainda não mergeado em `main`
-- ✅ Etapa 6 resolvida com **AWS** como provedor-alvo (ECS Fargate, S3, DynamoDB, RDS, CloudWatch)
+- ✅ Etapa 6 resolvida com **AWS** como provedor-alvo e **implantada de verdade** (não só documentada) — ECS Fargate, S3, DynamoDB, RDS, CloudWatch, via Terraform em `deploy/aws/`
 - ✅ Etapa 7 (MLflow) confirmada e validada rodando `docker compose up` localmente — params/métricas da Etapa 3 registrados corretamente
 - 🐛 Corrigidos 2 bugs de healthcheck no deploy Docker (curl ausente + allowed-hosts do MLflow) encontrados durante essa validação
 - ❌ Falta apenas: vídeo pitch (Etapa 8)
