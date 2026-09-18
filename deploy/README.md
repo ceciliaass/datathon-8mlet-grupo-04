@@ -1,5 +1,7 @@
 # Deploy README — datathon-8mlet-grupo-04
 
+Este arquivo cobre o deploy **local** via Docker Compose. Para o deploy real na **AWS** (Terraform: ECR, ECS Fargate, ALB, DynamoDB, RDS, S3, CloudWatch, Secrets Manager), veja [deploy/aws/README.md](aws/README.md).
+
 Resumo rápido
 - FastAPI: http://localhost:8000
 - MLflow UI: http://localhost:5002 (host) -> container expõe 5000

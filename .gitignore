@@ -12,6 +12,7 @@ data/
 *.xlsx
 *.xls
 *.json
+!deploy/aws/iam/*.json
 *.jsonl
 *.tsv
 *.sqlite

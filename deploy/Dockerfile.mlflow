@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     build-essential \
     git \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -13,11 +14,12 @@ WORKDIR /app
 RUN python3 -m pip install --upgrade pip setuptools wheel || true && \
     python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip && \
-    /opt/venv/bin/pip install --no-cache-dir mlflow sqlalchemy alembic
+    /opt/venv/bin/pip install --no-cache-dir mlflow sqlalchemy alembic psycopg2-binary boto3
 ENV PATH="/opt/venv/bin:$PATH"
 
 COPY . /app
+RUN chmod +x /app/deploy/mlflow-entrypoint.sh
 
 EXPOSE 5000
 
-CMD ["mlflow", "server", "--backend-store-uri", "sqlite:///mlflow.db", "--default-artifact-root", "./mlruns", "--host", "0.0.0.0", "--port", "5000", "--allowed-hosts", "mlflow:5000,mlflow,localhost,127.0.0.1,localhost:5002"]
+ENTRYPOINT ["/app/deploy/mlflow-entrypoint.sh"]

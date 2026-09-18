@@ -1,0 +1,9 @@
+# Copie para terraform.tfvars (fica fora do git) e ajuste se quiser
+# sobrescrever os defaults de variables.tf.
+
+# aws_region       = "sa-east-1"
+# project_name     = "datathon-bandit"
+# environment      = "demo"
+
+# Restrinja o acesso publico ao ALB para o seu IP, se quiser:
+# alb_ingress_cidr = "200.1.2.3/32"

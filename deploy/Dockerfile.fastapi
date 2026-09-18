@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     build-essential \
     git \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -22,4 +23,7 @@ COPY . /app
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# --loop asyncio --http h11: forca event loop e parser HTTP em Python puro
+# (em vez de uvloop/httptools) - descarta uma classe de incompatibilidade
+# sutil desses componentes em C no Fargate/ARM64.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--loop", "asyncio", "--http", "h11"]

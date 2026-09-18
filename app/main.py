@@ -27,6 +27,7 @@ import os
 
 import mlflow
 from fastapi import FastAPI, HTTPException, Body
+from fastapi.responses import RedirectResponse
 
 from app.bandit_store import bandit_store
 from app.schemas import (
@@ -38,7 +39,14 @@ from app.schemas import (
 
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-mlflow.set_experiment("datathon-bandit-app")
+try:
+    # Chamada de rede na inicialização do processo: se o MLflow ainda não
+    # estiver de pé (ex.: os dois serviços sobem juntos no ECS e o MLflow
+    # demora mais a ficar saudável), isso não pode derrubar a API — o
+    # tracking é melhor-esforço (ver _log_recommendation/_log_feedback).
+    mlflow.set_experiment("datathon-bandit-app")
+except Exception:
+    pass
 
 # Gera uma recomendação de exemplo para popular os exemplos da documentação
 # (permite que o botão "Try it out" em /docs use um `decision_id` válido).
@@ -81,6 +89,11 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
+
+
+@app.get("/", include_in_schema=False)
+def root() -> RedirectResponse:
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health")
