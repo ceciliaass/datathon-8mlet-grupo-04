@@ -149,6 +149,41 @@ Runbook completo (criar o usuário IAM, deploy do zero, verificação, pausar, d
 
 ## ☁️ Arquitetura-Alvo em Nuvem (AWS) — por que essas escolhas
 
+```mermaid
+flowchart TB
+    User(["Cliente / Browser"])
+
+    subgraph AWS["AWS — us-east-2"]
+        ALB["Application Load Balancer<br/>:80 → FastAPI · :5000 → MLflow"]
+
+        subgraph ECS["ECS Fargate"]
+            FastAPI["FastAPI<br/>Thompson Sampling"]
+            MLflow["MLflow Server"]
+        end
+
+        DynamoDB[("DynamoDB<br/>bandit-arms · bandit-decisions")]
+        RDS[("RDS PostgreSQL<br/>backend store")]
+        S3[("S3<br/>artifacts")]
+        Secrets["Secrets Manager<br/>credenciais RDS"]
+        CW["CloudWatch Logs"]
+        ECR["ECR<br/>imagens Docker"]
+
+        User -->|HTTP| ALB
+        ALB -->|"/recomendar /feedback /stats"| FastAPI
+        ALB -->|UI| MLflow
+
+        FastAPI -->|"PutItem / GetItem / UpdateItem"| DynamoDB
+        FastAPI -.->|log de runs| MLflow
+
+        MLflow --> RDS
+        MLflow --> S3
+        MLflow -.->|le credenciais| Secrets
+
+        ECS -.->|logs| CW
+        ECR -.->|pull da imagem| ECS
+    end
+```
+
 Partindo das imagens já existentes em `deploy/` (`Dockerfile.fastapi`, `Dockerfile.mlflow`), o caminho mais direto para colocar este projeto no ar na AWS é publicá-las no **Amazon ECR** e rodá-las como serviços no **Amazon ECS com Fargate** (containers gerenciados, sem servidor para administrar), com um **Application Load Balancer** expondo tanto a API FastAPI (porta 80) quanto a UI do MLflow (porta 5000) publicamente — a segunda sem autenticação, uma simplificação aceitável para um ambiente de demo de curta duração, não para produção real. Os dados brutos e processados do Kaggle (hoje em `data/`) iriam para um bucket **S3**, e o pipeline de EDA/treino dos notebooks poderia rodar como tarefa agendada no próprio ECS, sem alterar o código.
 
 O ponto que mais muda em relação ao ambiente local é o estado: hoje o bandit persiste em um arquivo pickle (`data/bandit_state.pkl`) e o MLflow usa SQLite local — o que só funciona com uma única réplica, como já registrado nas limitações do [app/README.md](app/README.md). Na AWS, tanto os contadores do bandit quanto o log de decisões migrariam para o **DynamoDB**: o padrão de acesso real (grava decisão pendente, depois busca por `decision_id` e atualiza com o resultado) é get/update por chave primária, que o DynamoDB atende nativamente via `PutItem`/`GetItem`/`UpdateItem` — diferente de um object store como o S3, que fica reservado para os artifacts do MLflow. O MLflow passaria a usar **RDS PostgreSQL** como backend store e **S3** como artifact store, permitindo escalar a API horizontalmente sem perder consistência. Observabilidade (logs, métricas e alarmes de erro/latência) ficaria centralizada no **CloudWatch**, e credenciais sensíveis (ex.: senha do RDS) no **Secrets Manager**.
