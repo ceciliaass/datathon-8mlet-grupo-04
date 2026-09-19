@@ -6,7 +6,7 @@
 ## 🎯 Visão Geral: Duas Rotas Possíveis
 
 ```
-SEMANA 1-4: IGUAL PARA TODOS (Local com Docker Compose)
+FASE 1-4: IGUAL PARA TODOS (Local com Docker Compose)
 ┌──────────────────────────────────────────────────────────────┐
 │ Notebooks (Tracking) → Scripts (Reproducible) → API (Docker) │
 │ Trabalhar localmente, testar tudo, validar modelo            │
@@ -18,7 +18,7 @@ SEMANA 1-4: IGUAL PARA TODOS (Local com Docker Compose)
   (Docker Compose)                   (ECS + RDS + S3)
         │                                       │
    ┌────▼──────────────┐              ┌────────▼──────────────┐
-   │ SEMANA 5: LOCAL   │              │ SEMANA 5: AWS        │
+   │ FASE 5: LOCAL   │              │ FASE 5: AWS        │
    │ ✅ Simples        │              │ ✅ Escalável         │
    │ ✅ Gratuito       │              │ ✅ Profissional      │
    │ ✅ Rápido         │              │ ✅ Auto-escalável    │
@@ -44,18 +44,18 @@ SEMANA 1-4: IGUAL PARA TODOS (Local com Docker Compose)
 | **Multi-replica** | Não | Sim (3+ instâncias) |
 
 **Recomendação:**
-- **Semanas 1-4:** Todos fazem localmente com Docker Compose
-- **Semana 5:** Escolha sua rota
+- **Fases 1-4:** Todos fazem localmente com Docker Compose
+- **Fase 5:** Escolha sua rota
   - 📍 **Fazer demo/hackathon?** → Fica em Docker Compose
   - 🚀 **Ir para produção?** → Vai para AWS
 
 ---
 
-# SEMANAS 1-4: IGUAL PARA TODOS (Local com Docker)
+# FASES 1-4: IGUAL PARA TODOS (Local com Docker)
 
 ---
 
-# SEMANA 1: Enriquecer Tracking nos Notebooks
+# FASE 1: Enriquecer Tracking nos Notebooks
 
 ## Objetivo
 Fazer o notebook 03 logar **tudo** no MLflow com SQLite local.
@@ -175,7 +175,7 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000
 
 ---
 
-# SEMANA 2: Validação e Model Registry
+# FASE 2: Validação e Model Registry
 
 ## Notebook 04: Golden Set + Registrar Modelo
 
@@ -237,7 +237,7 @@ if staging_versions:
 
 ---
 
-# SEMANA 3: Scripts Reproduzíveis
+# FASE 3: Scripts Reproduzíveis
 
 ## Converter Notebooks em Scripts
 
@@ -344,7 +344,7 @@ mlflow run . --entry-point train -P seed=456
 
 ---
 
-# SEMANA 4: API + MLflow (Igual em Ambas Rotas)
+# FASE 4: API + MLflow (Igual em Ambas Rotas)
 
 ## app/main.py (Atualizado para Carregar do Registry)
 
@@ -511,7 +511,7 @@ docker compose -f deploy/docker-compose.yml down
 
 ---
 
-# SEMANA 5: Escolha Sua Rota
+# FASE 5: Escolha Sua Rota
 
 ---
 
@@ -575,7 +575,7 @@ datathon-8mlet-grupo-04/
     └── main.py
 ```
 
-### Checklist Rota A (Semana 5)
+### Checklist Rota A (Fase 5)
 
 - [ ] Treinar com `mlflow run . --entry-point train`
 - [ ] Validar Golden Set no notebook 04
@@ -618,7 +618,7 @@ terraform --version  # v1.0+
 # - AWS_ROLE_TO_ASSUME
 ```
 
-### Semana 5: Implementação AWS (Passo a Passo)
+### Fase 5: Implementação AWS (Passo a Passo)
 
 #### Passo 1: Infraestrutura Base (RDS + S3)
 
@@ -819,7 +819,7 @@ jobs:
             --force-new-deployment
 ```
 
-### Checklist Rota B (Semana 5)
+### Checklist Rota B (Fase 5)
 
 - [ ] Configurar credenciais AWS
 - [ ] Instalar Terraform
@@ -836,7 +836,7 @@ jobs:
 
 ---
 
-## 📊 Comparação das Duas Rotas (Semana 5 Final)
+## 📊 Comparação das Duas Rotas (Fase 5 Final)
 
 ```
 ROTA A: LOCAL (Docker Compose)
@@ -874,34 +874,34 @@ ROTA B: AWS (ECS + RDS + S3)
 
 ---
 
-## 🎯 Checklist Completo (Todas as 5 Semanas)
+## 🎯 Checklist Completo (Todas as 5 Fases)
 
-### ✅ Semana 1: Enriquecimento
+### ✅ Fase 1: Enriquecimento
 - [ ] Adicionar Tags no notebook 03
 - [ ] Aumentar Métricas (histórico + segmentos)
 - [ ] Logar Gráficos (4+ visualizações)
 - [ ] Logar Artefatos (CSV, PKL, JSON, Relatório)
 - [ ] Testar: `mlflow ui --backend-store-uri sqlite:///mlflow.db`
 
-### ✅ Semana 2: Model Registry
+### ✅ Fase 2: Model Registry
 - [ ] Notebook 04 com Golden Set
 - [ ] Criar wrapper `mlflow.pyfunc.PythonModel`
 - [ ] Registrar modelo: `datathon-bandit-thompson`
 - [ ] Promover para Production
 
-### ✅ Semana 3: Scripts
+### ✅ Fase 3: Scripts
 - [ ] Converter notebook 03 → `src/train.py`
 - [ ] Converter notebook 04 → `src/evaluate.py`
 - [ ] Criar `MLproject` na raiz
 - [ ] Testar: `mlflow run . --entry-point train`
 
-### ✅ Semana 4: API Local
+### ✅ Fase 4: API Local
 - [ ] Modificar `app/main.py` (carregar do Registry)
 - [ ] Atualizar `Dockerfile.fastapi`
 - [ ] Testar: `docker compose up`
 - [ ] Validar endpoints
 
-### ✅ Semana 5: Escolha sua Rota
+### ✅ Fase 5: Escolha sua Rota
 
 **Se ROTA A (Local):**
 - [ ] Documentar instruções docker compose
@@ -920,13 +920,13 @@ ROTA B: AWS (ECS + RDS + S3)
 ## 🚀 Resumo
 
 ```
-Semanas 1-4: Desenvolvimento Local (igual para todos)
+Fases 1-4: Desenvolvimento Local (igual para todos)
 ├─ Notebooks enriquecidos
 ├─ Scripts reproduzíveis
 ├─ API com MLflow Registry
 └─ Tudo testado em Docker Compose
 
-Semana 5: Escolha sua destinação
+Fase 5: Escolha sua destinação
 ├─ ROTA A: Fica em Docker Compose (simples, grátis)
 └─ ROTA B: Escala para AWS (profissional, automático)
 ```

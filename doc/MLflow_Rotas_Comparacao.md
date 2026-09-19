@@ -49,11 +49,11 @@ Acesso:
 ### O que você precisa fazer
 
 ```bash
-# 1. Semanas 1-4 (treinar e validar localmente)
+# 1. Fases 1-4 (treinar e validar localmente)
 mlflow run . --entry-point train -P seed=42
 # notebook 04: validar e promover para Production
 
-# 2. Semana 5: Subir os containers
+# 2. Fase 5: Subir os containers
 docker compose -f deploy/docker-compose.yml up -d
 
 # 3. Pronto! Acessar:
@@ -195,11 +195,11 @@ Acesso:
 ### O que você precisa fazer
 
 ```bash
-# 1. Semanas 1-4 (igual à Rota A - treinar localmente)
+# 1. Fases 1-4 (igual à Rota A - treinar localmente)
 mlflow run . --entry-point train -P seed=42
 # notebook 04: validar e promover para Production
 
-# 2. Semana 5: Deploy na AWS
+# 2. Fase 5: Deploy na AWS
 cd deploy/aws/terraform
 
 # Configurar credenciais AWS
@@ -382,7 +382,7 @@ Razão:
 - Deploy em qualquer laptop
 
 Workflow:
-1. Treinar localmente (Semanas 1-4)
+1. Treinar localmente (Fases 1-4)
 2. docker compose up
 3. Mostrar MLflow + API
 4. Pronto para apresentar!
@@ -501,7 +501,7 @@ Fluxograma de Decisão:
 │  └─ NÃO → ROTA A ✅
 ```
 
-**Lembrete:** Ambas as rotas usam as MESMAS semanas 1-4. Você apenas escolhe em qual infraestrutura rodar a semana 5!
+**Lembrete:** Ambas as rotas usam as MESMAS fases 1-4. Você apenas escolhe em qual infraestrutura rodar a fase 5!
 
 ---
 

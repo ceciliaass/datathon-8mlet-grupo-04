@@ -211,7 +211,7 @@
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────┐
-│  SEMANA 1: ENRIQUECIMENTO TRACKING (Notebook 03)                          │
+│  FASE 1: ENRIQUECIMENTO TRACKING (Notebook 03)                          │
 ├───────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │  Cientista                        MLflow Local                            │
@@ -235,7 +235,7 @@
 └───────────────────────────────────────────────────────────────────────────┘
 
 ┌───────────────────────────────────────────────────────────────────────────┐
-│  SEMANA 2: VALIDAÇÃO E REGISTRO (Notebook 04 + Model Registry)            │
+│  FASE 2: VALIDAÇÃO E REGISTRO (Notebook 04 + Model Registry)            │
 ├───────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │  Notebook 04              Golden Set Validation      Model Registry       │
@@ -258,7 +258,7 @@
 └───────────────────────────────────────────────────────────────────────────┘
 
 ┌───────────────────────────────────────────────────────────────────────────┐
-│  SEMANA 3: REPRODUZIBILIDADE (MLflow Projects)                            │
+│  FASE 3: REPRODUZIBILIDADE (MLflow Projects)                            │
 ├───────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │  src/train.py                 src/evaluate.py           MLproject         │
@@ -285,7 +285,7 @@
 └───────────────────────────────────────────────────────────────────────────┘
 
 ┌───────────────────────────────────────────────────────────────────────────┐
-│  SEMANA 4: INTEGRAÇÃO NA API (Local + Docker Compose)                     │
+│  FASE 4: INTEGRAÇÃO NA API (Local + Docker Compose)                     │
 ├───────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │  app/main.py             MLflow Server         Model Registry             │
@@ -321,7 +321,7 @@
 └───────────────────────────────────────────────────────────────────────────┘
 
 ┌───────────────────────────────────────────────────────────────────────────┐
-│  SEMANA 5: DEPLOY NA AWS (Terraform + ECS + RDS + S3)                    │
+│  FASE 5: DEPLOY NA AWS (Terraform + ECS + RDS + S3)                    │
 ├───────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │  GitHub Push          CI/CD Pipeline        AWS (us-east-2)              │
@@ -381,7 +381,7 @@
 ## 📊 Estado do Modelo no MLflow Registry
 
 ```
-PIPELINE LOCAL (Semana 1-4):
+PIPELINE LOCAL (Fase 1-4):
 ├─ Staging (teste/validação)
 │  └─ Model Version 1
 │     ├─ Status: pronto para production
@@ -397,7 +397,7 @@ PIPELINE LOCAL (Semana 1-4):
       └─ Feedback coletado: 1,247 conversões
 
 
-PIPELINE AWS (Semana 5):
+PIPELINE AWS (Fase 5):
 ├─ Staging (validação em ECS)
 │  └─ Model Version 2
 │     ├─ Status: aguardando aprovação
