@@ -81,7 +81,7 @@ else:
 # ============================================================================
 
 # Nome do experimento padrão
-EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT", "datathon-bandit-etapa7")
+EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT", "testemlflow")
 
 # Habilitar/desabilitar tracking (útil para testes)
 ENABLE_TRACKING = os.getenv("ENABLE_MLFLOW_TRACKING", "true").lower() == "true"

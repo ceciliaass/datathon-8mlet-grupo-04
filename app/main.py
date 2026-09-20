@@ -57,7 +57,7 @@ try:
     # estiver de pé (ex.: os dois serviços sobem juntos no ECS e o MLflow
     # demora mais a ficar saudável), isso não pode derrubar a API — o
     # tracking é melhor-esforço (ver _log_recommendation/_log_feedback).
-    mlflow.set_experiment("datathon-bandit-app")
+    mlflow.set_experiment("testemlflow")
 except Exception:
     pass
 

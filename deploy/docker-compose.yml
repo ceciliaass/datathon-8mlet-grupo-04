@@ -1,78 +1,38 @@
 services:
   mlflow:
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile.mlflow
+    image: python:3.11-slim
     container_name: datathon_mlflow
-    volumes:
-      # Backend: Volume nomeado para SQLite (mais robusto que mount de arquivo)
-      - mlflow-db-volume:/app/data
-      # Artifacts: pasta mlruns (compartilhada com notebooks + API)
-      - ../mlruns:/app/mlruns
-      # Projeto (para scripts, dados, etc)
-      - ..:/app:cached
     ports:
-      - "5002:5000"  # Porta local: http://localhost:5002
-    environment:
-      # Backend store: SQLite em volume nomeado (mais robusto)
-      - MLFLOW_BACKEND_STORE_URI=sqlite:////app/data/mlflow.db
-      # Artifact root: pasta mlruns (contém Exp 1 dos notebooks + Exp 2 da API)
-      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/app/mlruns
-      # Hosts permitidos (para acesso via localhost:5002, browser, etc)
-      - MLFLOW_ALLOWED_HOSTS=mlflow:5000,mlflow,localhost,localhost:5000,localhost:5002,127.0.0.1,127.0.0.1:5000,127.0.0.1:5002,*
-      # Debug opcional (descomente para mais detalhes)
-      # - MLFLOW_TRACKING_DEBUG=true
+      - "5002:5000"
+    volumes:
+      - mlflow_data:/mlflow
     networks:
       - datathon_net
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5000/ || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 15s  # Mais tempo para inicializar
-    restart: unless-stopped
-    labels:
-      - "com.datathon.service=mlflow"
-      - "com.datathon.description=MLflow Tracking Server (Experiments 1: training, 2: production)"
+    working_dir: /mlflow
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - "pip install mlflow==2.10.2 --quiet && mkdir -p /mlflow/artifacts && mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlflow.db --default-artifact-root /mlflow/artifacts"
 
   fastapi:
     build:
-      context: ..
-      dockerfile: deploy/Dockerfile.fastapi
+      context: .
+      dockerfile: Dockerfile
     container_name: datathon_fastapi
-    depends_on:
-      mlflow:
-        condition: service_healthy  # Aguarda MLflow estar saudável
-    # Compartilha os mesmos mounts: ambos acessam mlruns
-    volumes:
-      - ../mlruns:/app/mlruns
-      - ..:/app:cached
     ports:
-      - "8000:8000"  # Porta local: http://localhost:8000
+      - "8000:8000"
     environment:
-      - PYTHONUNBUFFERED=1
-      # Conecta ao MLflow dentro da rede Docker
       - MLFLOW_TRACKING_URI=http://mlflow:5000
-      # Debug opcional
-      # - MLFLOW_TRACKING_DEBUG=true
+      - ENVIRONMENT=local
+    depends_on:
+      - mlflow
     networks:
       - datathon_net
-    # Readiness check: API + MLflow devem estar acessíveis
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health && curl -f http://mlflow:5000/api/2.0/preview/ml-flow/version || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s  # Aguarda ambos os serviços
-    restart: unless-stopped
-    labels:
-      - "com.datathon.service=fastapi"
-      - "com.datathon.description=FastAPI com Thompson Sampling (Experiment 2)"
+
+volumes:
+  mlflow_data:
+    driver: local
 
 networks:
   datathon_net:
-    name: datathon_net
-
-volumes:
-  mlflow-db-volume:
-    driver: local
+    driver: bridge
