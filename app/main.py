@@ -24,6 +24,7 @@ Fluxo de uso:
     3) GET  /stats             -> acompanha a crença atual por braço
 """
 import os
+import logging
 
 import mlflow
 from fastapi import FastAPI, HTTPException, Body
@@ -36,6 +37,18 @@ from app.schemas import (
     FeedbackResponse,
     RecomendacaoResponse,
 )
+from app.mlflow_config import ENVIRONMENT, ENABLE_TRACKING, log_config
+from app.mlflow_utils import (
+    initialize_mlflow,
+    log_api_inference,
+    log_feedback_result,
+    log_bandit_stats,
+)
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+log_config()
 
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
@@ -91,6 +104,14 @@ app = FastAPI(
 )
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Executado quando a API inicia."""
+    logger.info("🚀 API iniciando...")
+    initialize_mlflow()
+    logger.info("✅ API pronta!")
+
+
 @app.get("/", include_in_schema=False)
 def root() -> RedirectResponse:
     return RedirectResponse(url="/docs")
@@ -114,11 +135,27 @@ def recomendar(contexto: ClienteContexto | None = Body(
     """
     contexto_dict = contexto.model_dump() if contexto else None
     resultado = bandit_store.recommend(client_context=contexto_dict)
+
+    decision_id = resultado["decision_id"]
+    arm_selected = resultado["arm"]
+
+    # Log tradicional (manter para compatibilidade)
     _log_recommendation(
-        decision_id=resultado["decision_id"],
-        arm=resultado["arm"],
+        decision_id=decision_id,
+        arm=arm_selected,
         client_context=contexto_dict,
     )
+
+    # Log enriquecido no MLflow
+    log_api_inference(
+        decision_id=decision_id,
+        arm_selected=arm_selected,
+        confidence=0.5,
+        client_features=contexto_dict or {},
+        model_version="thompson_v1"
+    )
+
+    logger.info(f"📊 Recomendação: {decision_id} → {arm_selected}")
     return RecomendacaoResponse(**resultado)
 
 
@@ -142,11 +179,25 @@ def feedback(payload: FeedbackRequest = Body(
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
 
+    # Log tradicional
     _log_feedback(
         decision_id=resultado["decision_id"],
         arm=resultado["arm"],
         reward=resultado["reward"],
     )
+
+    # Log enriquecido no MLflow
+    log_feedback_result(
+        decision_id=resultado["decision_id"],
+        arm=resultado["arm"],
+        conversion=bool(resultado["reward"]),
+        extra_metrics={
+            "reward_value": float(resultado["reward"]),
+        }
+    )
+
+    status = "✅ Conversão" if resultado["reward"] else "❌ Sem conversão"
+    logger.info(f"📊 Feedback: {resultado['decision_id']} → {status}")
     return FeedbackResponse(**resultado)
 
 
