@@ -36,9 +36,9 @@ Cobre:
 → **[mlflow_demo_script.py](mlflow_demo_script.py)**
 
 Execute:
-\`\`\`bash
+```bash
 python doc/mlflow_demo_script.py
-\`\`\`
+```
 
 O que faz:
 1. Simula treinamento de modelo no notebook
@@ -56,10 +56,10 @@ O que faz:
 
 ### Opção 1: Ver funcionando (Recomendado!)
 
-\`\`\`bash
+```bash
 # Terminal 1: Iniciar MLflow
-mlflow server --backend-store-uri sqlite:///mlflow.db \\
-              --default-artifact-root ./mlruns \\
+mlflow server --backend-store-uri sqlite:///mlflow.db \
+              --default-artifact-root ./mlruns \
               --host 0.0.0.0 --port 5000
 
 # Terminal 2: Rodar demo
@@ -71,7 +71,7 @@ python doc/mlflow_demo_script.py
 # - 3 runs criados em tempo real
 # - Métricas de treino, predição, feedback
 # - Modelo registrado e em Production
-\`\`\`
+```
 
 ---
 
@@ -79,7 +79,7 @@ python doc/mlflow_demo_script.py
 
 ### Local Development
 
-\`\`\`mermaid
+```mermaid
 graph TB
     NB["📓 Notebook<br/>03_Baseline_Thompson"]
     MLLocal["🎛️ MLflow Server<br/>localhost:5000"]
@@ -104,11 +104,11 @@ graph TB
     style MLLocal fill:#f3e5f5
     style API fill:#e3f2fd
     style Client fill:#fce4ec
-\`\`\`
+```
 
 ### AWS Production
 
-\`\`\`mermaid
+```mermaid
 graph TB
     subgraph AWS["☁️ AWS us-east-2"]
         ALB["⚖️ Application Load Balancer<br/>Port 80 & 5000"]
@@ -147,11 +147,11 @@ graph TB
     style AWS fill:#e8f5e9
     style ECS fill:#f3e5f5
     style MLflowBackend fill:#e0f2f1
-\`\`\`
+```
 
 ### Fluxo Completo: Notebook → API → Produção
 
-\`\`\`mermaid
+```mermaid
 graph LR
     subgraph Dev["LOCAL"]
         NB["📓 Notebook<br/>03_Baseline_Thompson"]
@@ -173,7 +173,7 @@ graph LR
     style Prod fill:#e8f5e9
     style NB fill:#ffe0b2
     style API fill:#bbdefb
-\`\`\`
+```
 
 ---
 
