@@ -16,7 +16,6 @@ data/
 *.jsonl
 *.tsv
 *.sqlite
-*.db
 *.feather
 !.gitkeep  # Manter estrutura de pastas vazias
 
@@ -137,7 +136,6 @@ dmypy.json
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
 
 # ============= OS FILES =============
 .DS_Store
