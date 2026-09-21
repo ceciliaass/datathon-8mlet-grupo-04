@@ -13,7 +13,29 @@ Implementar **rastreamento completo de Machine Learning** usando MLflow, garanti
 - ✅ Experimentos sejam **rastreáveis com métricas detalhadas**
 - ✅ Artefatos sejam **persistidos e recuperáveis**
 - ✅ Metadata seja **rica em descrições, tags e versões**
-- ✅ Sistema funcione em **local (Docker) e AWS (ECS + RDS + S3)**
+- ✅ Sistema funcione em **Docker (desenvolvimento) e AWS (ECS + RDS + S3 em produção)**
+
+---
+
+## ⚠️ REQUISITO CRÍTICO - Instância MLflow
+
+```
+🔴 OBRIGATÓRIO PARA TODA EXECUÇÃO:
+
+USE SEMPRE A INSTÂNCIA DOCKER DO MLFLOW EM LOCALHOST:5002
+   └─ http://localhost:5002
+
+❌ NUNCA use tracking URI local (sqlite:///mlflow.db)
+   └─ Causa desincronização entre notebooks e UI
+
+✅ SEMPRE configure nos notebooks:
+   mlflow.set_tracking_uri('http://localhost:5002')
+   mlflow.set_experiment('model-production')
+
+🔗 Link para UI: http://localhost:5002
+```
+
+---
 
 ---
 
@@ -154,10 +176,38 @@ v1 (Atual)
 
 ### 2. Experimentos
 
+#### 2.0 Requisito Geral - TODA e QUALQUER RUN
+```
+⚠️  OBRIGATÓRIO PARA TODA RUN:
+┌─────────────────────────────────────────────────────────────┐
+│ Cada run do experimento DEVE TER:                           │
+│                                                             │
+│ 1️⃣  DESCRIÇÃO (Tags + Description)                          │
+│    ├─ Descrição clara do propósito da run                   │
+│    ├─ Fase/etapa do projeto (treino, avaliação, API, etc)  │
+│    ├─ Timestamp e contexto                                  │
+│    └─ Via mlflow.set_tag("description", "...") ou          │
+│       client.update_run_description()                       │
+│                                                             │
+│ 2️⃣  ARTEFATOS (obrigatoriamente salvos e visíveis)          │
+│    ├─ Qualquer arquivo relevante gerado pela run           │
+│    ├─ Modelos, resultados, gráficos, dados                 │
+│    ├─ Via mlflow.log_artifact() ou mlflow.log_figure()     │
+│    └─ VISÍVEIS na aba "Artifacts" da UI do MLflow          │
+│                                                             │
+│ 3️⃣  RASTREABILIDADE                                         │
+│    ├─ Parâmetros: log_param() para config da run           │
+│    ├─ Métricas: log_metric() para resultados               │
+│    ├─ Tags: set_tag() para categorização                   │
+│    └─ Tudo visível nas abas Parameters, Metrics, Tags      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
 #### 2.1 Experimento Principal
-- **Nome:** `testemlflow`
-- **Descrição:** Rastreamento de experimentos do Datathon Etapa 3
-- **Runs Esperados:** Múltiplos (treino, validação, API)
+- **Nome:** `model-production`
+- **Descrição:** Experimento único para todo o rastreamento (Etapas 3, 4 e API)
+- **Runs Esperados:** Múltiplas runs, cada uma com descrição e artefatos
 
 #### 2.2 Run: Treino do Modelo (Notebook 03)
 
@@ -250,6 +300,49 @@ arm: cellular ou telephone
 conversion: yes ou no
 ```
 
+#### 2.5 Padrão de Description e Artifacts em TODA RUN
+
+```
+⚠️  CADA RUN DEVE IMPLEMENTAR:
+
+┌─ DESCRIPTION (obrigatória)
+│  └─ Preenchida via tag "description" ou update_run()
+│     Formato: 
+│     "Nome da Run / Propósito
+│      Data: YYYY-MM-DD HH:MM:SS
+│      Fase: [etapa3_simulacao | etapa4_avaliacao | api_inference | api_feedback]
+│      Status: [em andamento | completo | erro]
+│      Resumo: [Descrição clara do que a run faz]"
+│
+├─ ARTIFACTS (obrigatórios)
+│  └─ Tudo que foi produzido deve estar logado
+│     Exemplos por tipo de run:
+│     
+│     etapa3_baseline_vs_thompson:
+│     ├─ 📊 bandit_results.csv (dados da simulação)
+│     ├─ 📈 conversao_e_distribuicao.png (gráficos)
+│     ├─ 📋 bandit_metrics.json (métricas de treino)
+│     └─ 🤖 model/bandit_model.pkl (modelo serializado)
+│     
+│     etapa4_avaliacao_golden_set:
+│     ├─ 📊 evaluation_metrics.json (métricas de avaliação)
+│     └─ 📋 golden_set_results.csv (casos de teste)
+│     
+│     api_inference:
+│     ├─ 📋 client_context.json (features do cliente)
+│     └─ 🏷️  decision_metadata.json (metadados da decisão)
+│     
+│     api_feedback:
+│     └─ 📝 feedback_record.json (resultado observado)
+│
+└─ VALIDAÇÃO NA UI
+   ✓ Descrição visível na aba "Description" da run
+   ✓ Cada artefato listado na aba "Artifacts"
+   ✓ Artefatos devem ser baixáveis e visualizáveis
+   ✓ Para imagens: preview inline
+   ✓ Para CSV/JSON: preview de conteúdo
+```
+
 ---
 
 ## 🖥️ Requisitos de UI - MLflow Interface
@@ -316,26 +409,28 @@ A **UI do MLflow em http://localhost:5002** precisa exibir TODAS as informaçõe
 **Requisito 5: Experimento Visível**
 ```
 ✅ Experiments
-   └─ testemlflow
+   └─ model-production
       ├─ Criado: 2026-09-20
-      ├─ Runs: 3+ (incluindo etapa3_baseline_vs_thompson)
+      ├─ Runs: 3+ (etapa3_baseline_vs_thompson, etapa4_avaliacao_golden_set, etc)
       └─ [Clicável para detalhes]
 ```
 
 **Requisito 6: Run Principal Visível**
 ```
-✅ testemlflow > Runs
-   └─ etapa3_baseline_vs_thompson
-      ├─ Status: FINISHED
-      ├─ Start Time: 2026-09-20 XX:XX:XX
-      ├─ Duration: ~5 min
-      ├─ [Clicável para detalhes]
-      └─ [Abas visíveis: Parameters, Metrics, Artifacts]
+✅ model-production > Runs
+   ├─ etapa3_baseline_vs_thompson
+   │  ├─ Status: FINISHED
+   │  ├─ Start Time: 2026-09-20 XX:XX:XX
+   │  └─ [Clicável para detalhes]
+   ├─ etapa4_avaliacao_golden_set
+   │  ├─ Status: FINISHED
+   │  └─ [Nested run - vinculado ao etapa3]
+   └─ [Abas visíveis: Parameters, Metrics, Artifacts]
 ```
 
-**Requisito 7: Parameters (Aba)**
+**Requisito 7: Parameters (Aba) - Run etapa3_baseline_vs_thompson**
 ```
-✅ Run > Parameters (16 parâmetros visíveis)
+✅ model-production > etapa3_baseline_vs_thompson > Parameters (16 parâmetros visíveis)
    ├─ dataset: bank-term-deposit-subscription (dharmik34)
    ├─ arms: ['cellular', 'telephone']
    ├─ baseline_policy: regra fixa (sempre telephone)
@@ -348,9 +443,9 @@ A **UI do MLflow em http://localhost:5002** precisa exibir TODAS as informaçõe
    └─ [11+ parâmetros adicionais]
 ```
 
-**Requisito 8: Metrics (Aba)**
+**Requisito 8: Metrics (Aba) - Run etapa3_baseline_vs_thompson**
 ```
-✅ Run > Metrics (10+ métricas visíveis e gráficos)
+✅ model-production > etapa3_baseline_vs_thompson > Metrics (10+ métricas visíveis e gráficos)
    ├─ baseline_conversion: 0.1044 [com gráfico de série temporal]
    ├─ thompson_conversion: 0.1367 [com gráfico de série temporal]
    ├─ conversion_lift_pp: 3.23
@@ -633,17 +728,18 @@ elif ENVIRONMENT == "aws":
 ### Tela 4: Experimento - Runs
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ testemlflow > Runs                                          │
+│ model-production > Runs                                     │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │ Run Name              | Status   | Created           | Src │
 │ ──────────────────────┼──────────┼───────────────────┼──── │
 │ etapa3_baseline_vs... │ FINISHED │ 2026-09-20 18:44 │ ✓   │
+│ etapa4_avaliacao...   │ FINISHED │ 2026-09-20 19:00 │ ✓   │
 │                                                             │
 │ Click para expandir:                                        │
-│ ├─ Parameters: 16                                           │
-│ ├─ Metrics: 10+                                             │
-│ ├─ Artifacts: 4 files                                       │
+│ ├─ Parameters: 16 (etapa3) / 3 (etapa4)                    │
+│ ├─ Metrics: 10+ (etapa3) / 4 (etapa4)                      │
+│ ├─ Artifacts: 4 files (etapa3) / 2 (etapa4)                │
 │ └─ Tags: notebook, etapa, tipo, versao, environment        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
@@ -652,7 +748,7 @@ elif ENVIRONMENT == "aws":
 ### Tela 5: Run Detalhado - Parameters
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ testemlflow > etapa3_baseline_vs_thompson > Parameters      │
+│ model-production > etapa3_baseline_vs_thompson > Parameters  │
 ├─────────────────────────────────────────────────────────────┤
 │ [Parameters] [Metrics] [Artifacts] [Tags] [System Metrics]  │
 │                                                             │
@@ -674,7 +770,7 @@ elif ENVIRONMENT == "aws":
 ### Tela 6: Run Detalhado - Metrics
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ testemlflow > etapa3_baseline_vs_thompson > Metrics         │
+│ model-production > etapa3_baseline_vs_thompson > Metrics     │
 ├─────────────────────────────────────────────────────────────┤
 │ [Parameters] [Metrics] [Artifacts] [Tags] [System Metrics]  │
 │                                                             │
@@ -696,7 +792,7 @@ elif ENVIRONMENT == "aws":
 ### Tela 7: Run Detalhado - Artifacts
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ testemlflow > etapa3_baseline_vs_thompson > Artifacts       │
+│ model-production > etapa3_baseline_vs_thompson > Artifacts   │
 ├─────────────────────────────────────────────────────────────┤
 │ [Parameters] [Metrics] [Artifacts] [Tags] [System Metrics]  │
 │                                                             │
@@ -720,7 +816,48 @@ elif ENVIRONMENT == "aws":
 
 ---
 
+## 🔍 VALIDAÇÃO - Verificar Instância Correta
+
+```python
+# Execute ANTES de rodar os notebooks:
+
+import mlflow
+tracking_uri = mlflow.get_tracking_uri()
+
+if 'localhost:5002' in tracking_uri or 'http://localhost:5002' in tracking_uri:
+    print("✅ CORRETO: Usando Docker MLflow")
+elif 'sqlite:///mlflow.db' in tracking_uri:
+    print("❌ ERRO: Usando SQLite local!")
+    print("   Execute: mlflow.set_tracking_uri('http://localhost:5002')")
+else:
+    print("⚠️  Tracking URI desconhecida:", tracking_uri)
+```
+
+---
+
 ## ✅ Checklist de Implementação
+
+### Pré-Requisito: TODA RUN Deve Ter
+```
+⚠️  ANTES DE CONSIDERAR QUALQUER RUN CONCLUÍDA:
+
+□ Description preenchida?
+  └─ Visível na aba "Description" da run
+  
+□ Artefatos logados?
+  └─ Pelo menos 1 artefato na aba "Artifacts"
+  
+□ Parâmetros documentados?
+  └─ Aba "Parameters" com valores relevantes
+  
+□ Métricas registradas?
+  └─ Aba "Metrics" com valores de desempenho
+  
+□ Tags categorização?
+  └─ Aba "Tags" com metadados da run
+
+SE ALGUM DESSES FALTAR → RUN NÃO ESTÁ COMPLETA ❌
+```
 
 ### Fase 1: Model Registry ✅
 - [x] Modelo criado e salvo (notebook 03)
@@ -739,7 +876,7 @@ elif ENVIRONMENT == "aws":
 - [x] Links cruzados funcionando
 
 ### Fase 2: Experimentos ✅
-- [x] Experimento `testemlflow` criado
+- [x] Experimento `model-production` criado
 - [x] Run `etapa3_baseline_vs_thompson` com:
   - [x] 16 parâmetros logados
   - [x] 10+ métricas logadas
@@ -747,7 +884,7 @@ elif ENVIRONMENT == "aws":
   - [x] Tags definidas
 
 **✅ Validação UI (http://localhost:5002):**
-- [x] testemlflow experimento visível
+- [x] model-production experimento visível
 - [x] Run etapa3_baseline_vs_thompson listado
 - [x] **Parameters aba:** 16 parâmetros exibidos
   - dataset, arms, baseline_policy, algoritmo_adaptativo, test_size, seed, etc
@@ -841,6 +978,33 @@ s3://seu-bucket/mlflow
 
 ## 🎯 Validação Funcional - O QUE VERIFICAR NA UI
 
+### ⚠️  VALIDAÇÃO OBRIGATÓRIA - Description e Artifacts em TODA RUN
+
+Para cada run do experimento `model-production`, VERIFICAR:
+
+```bash
+✓ Description Preenchida?
+  URL: http://localhost:5002/#/experiments/1/runs/[RUN_ID]
+  Procurar: Aba "Tags" → campo "description"
+  Esperado: Texto descritivo com: nome, data, fase, propósito
+  
+✓ Artefatos Visíveis?
+  URL: http://localhost:5002/#/experiments/1/runs/[RUN_ID]
+  Procurar: Aba "Artifacts" → lista de arquivos
+  Esperado: ✓ Pelo menos 1 artefato para cada run
+           ✓ Arquivos baixáveis
+           ✓ Para imagens: visível inline
+           ✓ Para CSV/JSON: preview disponível
+
+✓ Qualidade da Descrição?
+  Checar se a description contém:
+  ✓ Nome claro da run
+  ✓ Timestamp de execução
+  ✓ Fase/etapa do projeto
+  ✓ Resumo do propósito
+  ✓ Resultados principais (se aplicável)
+```
+
 ### ✅ Teste 1: Acessar Model Registry
 ```bash
 URL: http://localhost:5002
@@ -884,16 +1048,16 @@ Esperado: ✓ Informações detalhadas:
 ### ✅ Teste 5: Acessar Experimento
 ```bash
 URL: http://localhost:5002/#/experiments/1
-Esperado: ✓ Experimento "testemlflow" visível
-  - Runs: 3+ listados
+Esperado: ✓ Experimento "model-production" visível
+  - Runs: 3+ listados (etapa3_baseline_vs_thompson, etapa4_avaliacao_golden_set, etc)
   - etapa3_baseline_vs_thompson como principal
 ```
 
-### ✅ Teste 6: Visualizar Run - Parameters
+### ✅ Teste 6: Visualizar Run - Parameters (etapa3_baseline_vs_thompson)
 ```bash
-URL: http://localhost:5002/#/experiments/[ID]/runs/[RUN_ID]
+URL: http://localhost:5002/#/experiments/1/runs/[RUN_ID]
 Aba: Parameters
-Esperado: ✓ 16 parâmetros visíveis:
+Esperado: ✓ 16 parâmetros visíveis (Run etapa3_baseline_vs_thompson):
   - dataset: bank-term-deposit-subscription (dharmik34)
   - arms: ['cellular', 'telephone']
   - baseline_policy: regra fixa (sempre telephone)
@@ -972,7 +1136,7 @@ Esperado: ✓ Comparação lado-a-lado de:
 | Description | Model details | ✅ | 2026-09-20 |
 | 30+ Tags | Model > Tags | ✅ | 2026-09-20 |
 | Version 1 Production | Model > Versions | ✅ | 2026-09-20 |
-| testemlflow experiment | http://localhost:5002/#/experiments | ✅ | 2026-09-20 |
+| model-production experiment | http://localhost:5002/#/experiments | ✅ | 2026-09-20 |
 | etapa3_baseline_vs_thompson run | Experiment > Runs | ✅ | 2026-09-20 |
 | 16 Parameters | Run > Parameters | ✅ | 2026-09-20 |
 | 10+ Metrics | Run > Metrics | ✅ | 2026-09-20 |
@@ -1006,18 +1170,47 @@ datathon-8mlet-grupo-04/
 
 - **MLflow UI:** http://localhost:5002
 - **API FastAPI:** http://localhost:8000/docs
-- **Experimento testemlflow:** http://localhost:5002/#/experiments/1
+- **Experimento model-production:** http://localhost:5002/#/experiments/1
 - **Modelo thompson_sampling_bandit:** http://localhost:5002/#/models/thompson_sampling_bandit
+
+---
+
+## 🚀 Como Iniciar o MLflow Docker (Desenvolvimento)
+
+```bash
+# 1. Navegar para o diretório do projeto
+cd /Users/vagnerantononiodasilva/projetos_new/datathon-8mlet-grupo-04
+
+# 2. Iniciar o Docker Compose
+docker-compose -f deploy/docker-compose.yml up -d
+
+# 3. Verificar se o MLflow está rodando
+curl http://localhost:5002/
+
+# 4. Acessar a UI
+open http://localhost:5002
+
+# 5. Parar quando terminar
+docker-compose -f deploy/docker-compose.yml down
+```
 
 ---
 
 ## 📝 Notas Importantes
 
-1. **Schema SQLite:** Atualizado para versão 2.10.2 do MLflow
-2. **Porta MLflow:** Mapeada para 5002 (forwarding de 5000)
-3. **Volume Docker:** `mlflow_data` para persistência
-4. **Artefatos:** Salvos em `mlruns/` local e S3 em produção
-5. **Graceful Degradation:** Sistema funciona se MLflow indisponível
+1. **Instância MLflow:** SEMPRE usar Docker (localhost:5002)
+   - ❌ Nunca use sqlite:///mlflow.db nos notebooks
+   - ✅ Sempre configure mlflow.set_tracking_uri('http://localhost:5002')
+
+2. **Experimento:** SEMPRE usar `model-production`
+   - Todos os runs devem estar neste experimento
+
+3. **Schema:** Banco em Docker é persistido via volume
+
+4. **Artefatos:** Salvos em `/tmp/artifacts` dentro do container (desenvolvimento)
+   - Em produção: S3
+
+5. **Graceful Degradation:** Sistema funciona se MLflow indisponível (logs locais)
 
 ---
 

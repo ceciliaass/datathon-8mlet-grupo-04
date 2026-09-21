@@ -50,14 +50,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 log_config()
 
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5002")
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 try:
     # Chamada de rede na inicialização do processo: se o MLflow ainda não
     # estiver de pé (ex.: os dois serviços sobem juntos no ECS e o MLflow
     # demora mais a ficar saudável), isso não pode derrubar a API — o
     # tracking é melhor-esforço (ver _log_recommendation/_log_feedback).
-    mlflow.set_experiment("testemlflow")
+    mlflow.set_experiment("model-production")
 except Exception:
     pass
 

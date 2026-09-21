@@ -4,15 +4,13 @@ services:
     container_name: datathon_mlflow
     ports:
       - "5002:5000"
-    volumes:
-      - mlflow_data:/mlflow
     networks:
       - datathon_net
-    working_dir: /mlflow
+    working_dir: /tmp
     entrypoint: /bin/bash
     command:
       - -c
-      - "pip install mlflow==2.10.2 --quiet && mkdir -p /mlflow/artifacts && mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlflow.db --default-artifact-root /mlflow/artifacts"
+      - "pip install mlflow==3.15.1 --quiet && mkdir -p /tmp/artifacts && mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////tmp/mlflow.db --default-artifact-root /tmp/artifacts"
 
   fastapi:
     build:
@@ -28,10 +26,6 @@ services:
       - mlflow
     networks:
       - datathon_net
-
-volumes:
-  mlflow_data:
-    driver: local
 
 networks:
   datathon_net:

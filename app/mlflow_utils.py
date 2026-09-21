@@ -155,7 +155,7 @@ def log_notebook_execution(
             if artifacts:
                 for artifact_name, artifact_path in artifacts.items():
                     try:
-                        mlflow.log_artifact(artifact_path, artifact_name=artifact_name)
+                        mlflow.log_artifact(artifact_path)
                         logger.debug(f"✅ Artefato logado: {artifact_name}")
                     except Exception as e:
                         logger.warning(f"⚠️  Erro ao logar artefato {artifact_name}: {e}")

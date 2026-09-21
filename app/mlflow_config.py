@@ -22,7 +22,7 @@ ENVIRONMENT: Literal["local", "aws"] = os.getenv("ENVIRONMENT", "local").lower()
 # MLflow Tracking Server URI (onde está rodando o MLflow)
 MLFLOW_TRACKING_URI = os.getenv(
     "MLFLOW_TRACKING_URI",
-    "http://localhost:5000" if ENVIRONMENT == "local" else "http://mlflow:5000"
+    "http://localhost:5002" if ENVIRONMENT == "local" else "http://mlflow:5000"
 )
 
 # ============================================================================
@@ -80,8 +80,8 @@ else:
 # CONFIGURAÇÕES COMUNS
 # ============================================================================
 
-# Nome do experimento padrão
-EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT", "testemlflow")
+# Nome do experimento padrão (SEMPRE model-production)
+EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT", "model-production")
 
 # Habilitar/desabilitar tracking (útil para testes)
 ENABLE_TRACKING = os.getenv("ENABLE_MLFLOW_TRACKING", "true").lower() == "true"
