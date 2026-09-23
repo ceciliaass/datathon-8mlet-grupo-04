@@ -135,13 +135,15 @@ O mesmo serviço também está implantado de verdade na AWS (região `us-east-2`
 | API FastAPI (health) | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com/health |
 | MLflow UI | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com:5000/ |
 
-> ⚠️ **Este stack fica pausado (`desired_count=0` no ECS) fora das sessões de desenvolvimento/demo, para não gerar custo enquanto ninguém está usando** — os endpoints acima retornam erro (503 ou 403, dependendo do estado do target group) enquanto pausado. Se estiver pausado, retome com:
+> ℹ️ **Estado atual: stack sempre ativo** (`desired_count=1` fixo no Terraform para os dois serviços) — os endpoints acima respondem 24/7, sem precisar retomar nada. Se em algum momento o stack for pausado manualmente fora do Terraform (`desired_count=0`, para não gerar custo enquanto ninguém usa), os endpoints voltam a responder 503/403 até serem retomados com:
 > ```bash
 > export AWS_PROFILE=datathon AWS_REGION=us-east-2
 > aws ecs update-service --cluster datathon-bandit-cluster --service datathon-bandit-fastapi --desired-count 1
 > aws ecs update-service --cluster datathon-bandit-cluster --service datathon-bandit-mlflow  --desired-count 1
 > ```
 > Leva ~1-2 min para os endpoints responderem. Sem HTTPS e sem autenticação (aceitável para um ambiente de demo de curta duração, ver notas de segurança no runbook).
+>
+> ⚠️ A UI do MLflow só funciona nesse endpoint porque `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` está setado pro DNS do ALB no task definition ([deploy/aws/terraform/ecs.tf](deploy/aws/terraform/ecs.tf)) — MLflow ≥3.16 bloqueia por padrão (403/`INTERNAL_ERROR` na UI) chamadas de origem não-localhost sem essa allowlist. Se o DNS do ALB mudar (ex.: recriação do load balancer), essa env var precisa ser atualizada junto.
 
 Runbook completo (criar o usuário IAM, deploy do zero, verificação, pausar, destruir, custo estimado) em [deploy/aws/README.md](deploy/aws/README.md).
 
