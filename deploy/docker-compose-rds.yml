@@ -6,9 +6,12 @@ services:
     container_name: datathon_mlflow
     ports:
       - "5002:5000"
-    volumes:
-      - ../mlflow.db:/app/mlflow.db
-      - ../mlruns:/app/mlruns
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=postgresql://${RDS_USER:?Set RDS_USER env var}:${RDS_PASSWORD:?Set RDS_PASSWORD env var}@${RDS_HOST:?Set RDS_HOST env var}:${RDS_PORT:-5432}/${RDS_DB:-mlflow}
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=s3://${S3_BUCKET:?Set S3_BUCKET env var}/mlflow-artifacts
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
     networks:
       - datathon_net
     healthcheck:
@@ -27,18 +30,11 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - ENVIRONMENT=local
-    volumes:
-      - ../data:/app/data
     depends_on:
       mlflow:
         condition: service_healthy
     networks:
       - datathon_net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 networks:
   datathon_net:

@@ -77,6 +77,10 @@ resource "aws_ecs_task_definition" "mlflow" {
         # privado da task (dinamico a cada deploy) como Host header - nao da
         # para colocar isso numa allowlist estatica.
         { name = "MLFLOW_ALLOWED_HOSTS", value = "${aws_lb.main.dns_name},localhost,127.0.0.1,*" },
+        # MLflow >=3.16 bloqueia por padrao (403) chamadas POST da UI cuja
+        # origem nao seja localhost - sem isso a UI acessada pelo DNS da ALB
+        # quebra com "INTERNAL_ERROR" (runs/search, experiments/search-datasets etc.)
+        { name = "MLFLOW_SERVER_CORS_ALLOWED_ORIGINS", value = "http://${aws_lb.main.dns_name}:5000" },
       ]
 
       # Injetado pela execution role a partir do Secrets Manager - nunca em

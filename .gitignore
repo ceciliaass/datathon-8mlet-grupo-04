@@ -16,8 +16,16 @@ data/
 *.jsonl
 *.tsv
 *.sqlite
+*.sqlite3
+*.db
 *.feather
 !.gitkeep  # Manter estrutura de pastas vazias
+
+# Backups locais de mlflow.db / mlruns (gerados por deploy/*.sh, contêm dados)
+.backup-*/
+.mlflow-backup-*/
+mlflow.db.bak*
+mlruns-backup.tar.gz
 
 # ============= MODELOS TREINADOS =============
 models/
