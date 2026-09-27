@@ -1,34 +1,39 @@
-| ![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MLflow](https://img.shields.io/badge/MLOps-MLflow-0194E2?logo=mlflow) ![Epsilon-Greedy](https://img.shields.io/badge/Algorithm-Epsilon--Greedy-blue.svg) ![Scikit-learn](https://img.shields.io/badge/ML-Scikit--learn-F7931E?logo=scikit-learn) ![Status](https://img.shields.io/badge/Status-Fase%201-green.svg) |
+| ![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MLflow](https://img.shields.io/badge/MLOps-MLflow-0194E2?logo=mlflow) ![Thompson Sampling](https://img.shields.io/badge/Algorithm-Thompson%20Sampling-blue.svg) ![AWS](https://img.shields.io/badge/Deploy-AWS%20(Terraform)-FF9900?logo=amazonaws) ![Status](https://img.shields.io/badge/Status-8%2F9%20Etapas-green.svg) |
 |:----------------------------------------------------------------------------------------------------------------------------------------:|
 
 # 🎯 Datathon — Plataforma de Experimentação Adaptativa para Ofertas Financeiras
 
 ## 📌 Descrição
 
-Solução completa **end-to-end** para personalização adaptativa de ofertas financeiras usando **Epsilon-Greedy** (Multi-Armed Bandit). Plataforma que aprende continuamente qual oferta cada cliente prefere, otimizando taxas de conversão em tempo real.
+Solução completa **end-to-end** para personalização adaptativa de canal de contato usando **Thompson Sampling** (Multi-Armed Bandit, via [MABWiser](https://github.com/fidelity/mabwiser)). Serviço que aprende continuamente qual canal (celular/telefone) cada cliente prefere, otimizando taxas de conversão em tempo real — com baseline determinístico, tracking em MLflow e deploy real na AWS via Terraform.
 
 ---
 
-## 🚀 Status Atual
+## 🚀 Status Atual — 8 de 9 Etapas completas
 
-| Fase | Objetivo | Status |
+| Etapa | Objetivo | Status |
 |------|----------|--------|
-| **Fase 1** | EDA e Preparação de Dados | ✅ Em andamento |
-| **Fase 2** | Baseline + Epsilon-Greedy | ⏳ Próximo |
-| **Fase 3** | Avaliação e Golden Set | ⏳ Pendente |
-| **Fase 4** | API FastAPI | ⏳ Pendente |
-| **Fase 5** | MLflow Tracking | ⏳ Pendente |
-| **Fase 6-8** | Cloud, Docs e Demo | ⏳ Pendente |
+| **0** | Organização do Projeto | ✅ Completa |
+| **1** | Base Kaggle e EDA | ✅ Completa |
+| **2** | Preparação da Base | ✅ Completa |
+| **3** | Baseline + Thompson Sampling | ✅ Completa (supera o baseline: +30,95% de conversão relativa) |
+| **4** | Avaliação e Golden Set | ✅ Completa |
+| **5** | Serviço/API (FastAPI) | ✅ Completa |
+| **6** | Arquitetura-Alvo em Nuvem | ✅ Completa — **implantada de verdade na AWS** (não só documentada) |
+| **7** | Ciclo de Vida MLOps (MLflow) | ✅ Completa — validada rodando de verdade |
+| **8** | Demo Day / Vídeo Pitch | ⏳ Pendente (única etapa que falta) |
+
+Detalhamento fase a fase, incluindo bugs encontrados e corrigidos: [doc/PLANO_EXECUCAO.md](doc/PLANO_EXECUCAO.md).
 
 ---
 
 ## 📊 Base de Dados
 
-O projeto utiliza a base Kaggle abaixo com cache local:
+O projeto usa uma única base Kaggle do início ao fim (EDA, baseline, bandit e API):
 
-| Base | Autor | Registros | Status |
-|------|-------|-----------|--------|
-| 1️⃣ Bank Marketing | [henriqueyamahata](https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing) | ~41k | ✅ Funcionando |
+| Base | Autor | Uso |
+|------|-------|-----|
+| **Bank Term Deposit Subscription** (`bank-full.csv`) | [dharmik34](https://www.kaggle.com/datasets/dharmik34/bank-term-deposit-subscription) | EDA (Etapa 1) até a API em produção (Etapa 5) — coluna `contact` como braço do bandit (`cellular`/`telephone`) |
 
 **Leakage:** `duration` é removida por ser conhecida somente após a ligação. `pdays`, `previous` e `poutcome` são mantidas como histórico anterior ao contato.
 
@@ -64,82 +69,185 @@ kaggle datasets list | head -5
 
 **Guia detalhado:** `.kaggle/KAGGLE_SETUP.md`
 
-### 3️⃣ Iniciar servidor MLflow (opcional, mas recomendado)
+### 3️⃣ Rodar os notebooks (EDA → Baseline → Avaliação)
 
 ```bash
-# Terminal 1: sobe o servidor local do MLflow
-mlflow server \
-  --backend-store-uri sqlite:///mlflow.db \
-  --default-artifact-root ./mlruns \
-  --host 0.0.0.0 \
-  --port 5000
+jupyter notebook notebooks/01_EDA.ipynb                 # Etapa 1: EDA (bank-term-deposit-subscription)
+jupyter notebook notebooks/02_Preparacao_da_Base.ipynb  # Etapa 2: features + target
+jupyter notebook notebooks/03_Baseline_e_Thompson.ipynb # Etapa 3: baseline vs. Thompson Sampling + tracking MLflow
+jupyter notebook notebooks/04_Avaliacao_e_Golden_Set.ipynb # Etapa 4: métricas + Golden Set
 ```
 
-A interface será disponibilizada em: `http://localhost:5000`
+**Resultado:** `data/processed/bank-term-deposit-subscription_eda/` (features, `arm_stats.csv` usado como warm start pela API) ✅
 
-Se preferir apenas abrir a UI, sem iniciar o servidor em modo explícito, também funciona:
+---
+
+## 🖥️ Como usar a API (Etapa 5)
+
+O serviço (`app/`) é o mesmo em ambos os casos — só muda onde ele está rodando. Endpoints disponíveis: `GET /docs` (Swagger), `GET /health`, `POST /recomendar`, `POST /feedback`, `GET /stats`.
+
+### Opção 1 — Local via Docker Compose (desenvolvimento)
 
 ```bash
-mlflow ui --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000
+git clone <repo-url> datathon-8mlet-grupo-04
+cd datathon-8mlet-grupo-04
+
+docker compose -f deploy/docker-compose.yml build
+docker compose -f deploy/docker-compose.yml up -d --force-recreate
+
+# Status e logs
+docker compose -f deploy/docker-compose.yml ps
+docker compose -f deploy/docker-compose.yml logs -f --tail=200
 ```
 
-### 4️⃣ Executar Fase 1 (15 min)
+**Endpoints locais:**
 
+| Serviço | URL |
+|---|---|
+| API FastAPI (docs) | http://localhost:8000/docs |
+| API FastAPI (health) | http://localhost:8000/health |
+| MLflow UI | http://localhost:5002/ |
+
+> O compose mapeia a porta do container do MLflow (5000) para `5002` no host, para não colidir se você já tiver algo rodando na 5000.
+
+Alternativa mais leve, sem Docker (só o MLflow, rodando na porta 5000 nesse caso):
 ```bash
-jupyter notebook notebooks/01_EDA.ipynb
-
-# Célula 4️⃣: Baixa 4 bases com cache
-# Célula 5-6️⃣: Carrega e explora dados
-# Célula 7-12️⃣: Processa e salva
+mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000
 ```
 
-**Resultado:** `data/processed/bank-marketing_eda/bank_marketing_tratado.csv` ✅
+Persistência e migração do MLflow (SQLite):
+```bash
+docker compose -f deploy/docker-compose.yml exec -T mlflow mlflow db upgrade sqlite:///mlflow.db
+cp deploy/mlflow.db deploy/mlflow.db.bak && tar -czf deploy/mlruns-backup.tar.gz deploy/mlruns
+```
+
+Mais detalhes operacionais em [deploy/README.md](deploy/README.md).
+
+### Opção 2 — AWS (já implantado via Terraform)
+
+O mesmo serviço também está implantado de verdade na AWS (região `us-east-2`): ECS Fargate + Application Load Balancer, com o bandit persistido em DynamoDB (em vez do arquivo local) e o MLflow com backend em RDS PostgreSQL + artifacts em S3.
+
+**Endpoints AWS:**
+
+| Serviço | URL |
+|---|---|
+| API FastAPI (docs) | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com/docs |
+| API FastAPI (health) | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com/health |
+| MLflow UI | http://datathon-bandit-alb-361652049.us-east-2.elb.amazonaws.com:5000/ |
+
+> ℹ️ **Estado atual: stack sempre ativo** (`desired_count=1` fixo no Terraform para os dois serviços) — os endpoints acima respondem 24/7, sem precisar retomar nada. Se em algum momento o stack for pausado manualmente fora do Terraform (`desired_count=0`, para não gerar custo enquanto ninguém usa), os endpoints voltam a responder 503/403 até serem retomados com:
+> ```bash
+> export AWS_PROFILE=datathon AWS_REGION=us-east-2
+> aws ecs update-service --cluster datathon-bandit-cluster --service datathon-bandit-fastapi --desired-count 1
+> aws ecs update-service --cluster datathon-bandit-cluster --service datathon-bandit-mlflow  --desired-count 1
+> ```
+> Leva ~1-2 min para os endpoints responderem. Sem HTTPS e sem autenticação (aceitável para um ambiente de demo de curta duração, ver notas de segurança no runbook).
+>
+> ⚠️ A UI do MLflow só funciona nesse endpoint porque `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` está setado pro DNS do ALB no task definition ([deploy/aws/terraform/ecs.tf](deploy/aws/terraform/ecs.tf)) — MLflow ≥3.16 bloqueia por padrão (403/`INTERNAL_ERROR` na UI) chamadas de origem não-localhost sem essa allowlist. Se o DNS do ALB mudar (ex.: recriação do load balancer), essa env var precisa ser atualizada junto.
+
+Runbook completo (criar o usuário IAM, deploy do zero, verificação, pausar, destruir, custo estimado) em [deploy/aws/README.md](deploy/aws/README.md).
+
+---
+
+## ☁️ Arquitetura-Alvo em Nuvem (AWS) — por que essas escolhas
+
+```mermaid
+flowchart TB
+    User(["Cliente / Browser"])
+
+    subgraph AWS["AWS — us-east-2"]
+        ALB["Application Load Balancer<br/>:80 → FastAPI · :5000 → MLflow"]
+
+        subgraph ECS["ECS Fargate"]
+            FastAPI["FastAPI<br/>Thompson Sampling"]
+            MLflow["MLflow Server"]
+        end
+
+        DynamoDB[("DynamoDB<br/>bandit-arms · bandit-decisions")]
+        RDS[("RDS PostgreSQL<br/>backend store")]
+        S3[("S3<br/>artifacts")]
+        Secrets["Secrets Manager<br/>credenciais RDS"]
+        CW["CloudWatch Logs"]
+        ECR["ECR<br/>imagens Docker"]
+
+        User -->|HTTP| ALB
+        ALB -->|"/recomendar /feedback /stats"| FastAPI
+        ALB -->|UI| MLflow
+
+        FastAPI -->|"PutItem / GetItem / UpdateItem"| DynamoDB
+        FastAPI -.->|log de runs| MLflow
+
+        MLflow --> RDS
+        MLflow --> S3
+        MLflow -.->|le credenciais| Secrets
+
+        ECS -.->|logs| CW
+        ECR -.->|pull da imagem| ECS
+    end
+```
+
+Partindo das imagens já existentes em `deploy/` (`Dockerfile.fastapi`, `Dockerfile.mlflow`), o caminho mais direto para colocar este projeto no ar na AWS é publicá-las no **Amazon ECR** e rodá-las como serviços no **Amazon ECS com Fargate** (containers gerenciados, sem servidor para administrar), com um **Application Load Balancer** expondo tanto a API FastAPI (porta 80) quanto a UI do MLflow (porta 5000) publicamente — a segunda sem autenticação, uma simplificação aceitável para um ambiente de demo de curta duração, não para produção real. Os dados brutos e processados do Kaggle (hoje em `data/`) iriam para um bucket **S3**, e o pipeline de EDA/treino dos notebooks poderia rodar como tarefa agendada no próprio ECS, sem alterar o código.
+
+O ponto que mais muda em relação ao ambiente local é o estado: hoje o bandit persiste em um arquivo pickle (`data/bandit_state.pkl`) e o MLflow usa SQLite local — o que só funciona com uma única réplica, como já registrado nas limitações do [app/README.md](app/README.md). Na AWS, tanto os contadores do bandit quanto o log de decisões migrariam para o **DynamoDB**: o padrão de acesso real (grava decisão pendente, depois busca por `decision_id` e atualiza com o resultado) é get/update por chave primária, que o DynamoDB atende nativamente via `PutItem`/`GetItem`/`UpdateItem` — diferente de um object store como o S3, que fica reservado para os artifacts do MLflow. O MLflow passaria a usar **RDS PostgreSQL** como backend store e **S3** como artifact store, permitindo escalar a API horizontalmente sem perder consistência. Observabilidade (logs, métricas e alarmes de erro/latência) ficaria centralizada no **CloudWatch**, e credenciais sensíveis (ex.: senha do RDS) no **Secrets Manager**.
+
+**Implementação real:** o Terraform completo dessa arquitetura (ECR, ECS Fargate, ALB, DynamoDB, RDS, S3, CloudWatch, Secrets Manager, IAM) vive em [deploy/aws/](deploy/aws/).
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```
-mle_tech_chalenge_5/
+datathon-8mlet-grupo-04/
 │
 ├── 📓 notebooks/
-│   └── 01_EDA.ipynb                    ← EXECUTE PRIMEIRO
+│   ├── 01_EDA.ipynb                    ← Etapa 1: EDA (bank-term-deposit-subscription)
+│   ├── 02_Preparacao_da_Base.ipynb     ← Etapa 2: features + target
+│   ├── 03_Baseline_e_Thompson.ipynb    ← Etapa 3: baseline vs. Thompson Sampling + tracking MLflow (Etapa 7)
+│   ├── 04_Avaliacao_e_Golden_Set.ipynb ← Etapa 4: métricas + Golden Set
+│   ├── 06_Arquitetura_Cloud.ipynb      ← Etapa 6: decisão AWS (resumo; detalhe em deploy/aws/)
+│   ├── 07_MLflow_Tracking.ipynb        ← stub (tracking real está no notebook 03)
+│   └── 08_Demo_Day.ipynb               ← Etapa 8: pendente
 │
 ├── 🐍 src/
 │   ├── __init__.py
-│   ├── data_processing.py              ← Funções de EDA
-│   ├── baseline.py                     ← Fase 2
-│   ├── adaptive_model.py               ← Fase 2
-│   ├── api.py                          ← Fase 4
-│   └── train_and_log.py                ← Fase 5
+│   └── data_processing.py              ← Funções reutilizáveis de EDA/pipeline
 │
-├── 📊 data/
-│   ├── raw/                            ← Dados brutos (não versiona)
-│   └── processed/                      ← Dados processados (não versiona)
-│       └── bank-marketing_eda/
+├── 🚀 app/                             ← Etapa 5: serviço FastAPI (Thompson Sampling em produção)
+│   ├── main.py                         ← Endpoints: /, /health, /recomendar, /feedback, /stats
+│   ├── bandit_store.py                 ← Persistência do bandit (backend "file" local ou "dynamodb" na AWS)
+│   ├── schemas.py
+│   ├── demo_client.py                  ← Script de exemplo consumindo a API
+│   ├── requirements.txt
+│   └── README.md                       ← Documentação do serviço
 │
-├── 🎛️ models/
-│   ├── scaler_*.pkl                    ← StandardScaler por dataset (não versiona)
-│   └── label_encoders_*.pkl            ← Encoders por dataset (não versiona)
+├── 🐳 deploy/                          ← Deploy local (Docker Compose) e AWS (Terraform)
+│   ├── Dockerfile.fastapi / Dockerfile.mlflow
+│   ├── mlflow-entrypoint.sh
+│   ├── docker-compose.yml
+│   ├── README.md                       ← Deploy local
+│   └── aws/                            ← Etapa 6: Terraform + IAM + runbook AWS
+│       ├── terraform/                  ← ECR, ECS Fargate, ALB, DynamoDB, RDS, S3, CloudWatch, Secrets Manager
+│       ├── iam/deploy-user-policy.json ← Política IAM do usuário de deploy
+│       └── README.md                   ← Runbook: deploy, verificação, pausa, teardown, custo
+│
+├── 📊 data/                            ← Dados brutos/processados e estado do bandit (não versiona)
+│   └── processed/bank-term-deposit-subscription_eda/
 │
 ├── 📚 doc/
-│   ├── SETUP.md                        ← Guia de setup
-│   ├── FASES_DETALHADAS.md             ← Arquitetura completa
-│   ├── datathon.md                     ← Briefing oficial
-│   ├── FASE_1_CHECKLIST.md             ← Checklist Fase 1 (local)
-│   ├── FASE_1_README.md                ← Guia Fase 1 (local)
-│   └── QUICK_START.md                  ← Inicio rápido (local)
+│   ├── datathon.md                     ← Briefing oficial do datathon
+│   └── PLANO_EXECUCAO.md               ← Status detalhado de cada etapa (fonte da verdade do progresso)
 │
 ├── 🔑 .kaggle/
-│   ├── KAGGLE_SETUP.md                 ← Como configurar token
-│   └── kaggle.json                     ← Arquivo real (não versiona)
+│   └── KAGGLE_SETUP.md                 ← Como configurar token Kaggle
 │
 ├── 📋 README.md                        ← Este arquivo
-├── 📦 requirements.txt                 ← Dependências Python
-├── .gitignore                          ← Exclusões do git
-├── PLANO_EXECUCAO.md                   ← Roadmap das 9 fases
-└── .env.example                        ← Template de variáveis
+├── 📦 requirements.txt                 ← Dependências Python (notebooks)
+├── .env.example                        ← Template de variáveis de ambiente
+├── .python-version                     ← 3.12
+└── .gitignore
 ```
+
+> `config.yaml`/`config/config.yaml` e `deploy/PLAN.md` também existem no repo, mas são artefatos do planejamento inicial (fase 1) e não refletem o que foi de fato implementado — a fonte da verdade é `doc/PLANO_EXECUCAO.md`.
 
 ---
 
@@ -148,82 +256,54 @@ mle_tech_chalenge_5/
 ```
 1. Setup Kaggle
    ↓
-2. Executar Notebook 01_EDA.ipynb
-   ├─ Célula 4️⃣: Baixa 4 bases com cache
-   ├─ Célula 5-6️⃣: Exploração de dados
-   └─ Célula 7-12️⃣: Processamento
+2. Notebook 01_EDA.ipynb            → EDA + tratamento (bank-term-deposit-subscription)
    ↓
-3. Dados salvos em: data/processed/{dataset}/
-   ├─ data_processed.csv (features + target)
-   ├─ X_features.csv
-   ├─ y_target.csv
-   └─ dataset_info.md
+3. Notebook 02_Preparacao_da_Base.ipynb → features + target prontos
    ↓
-4. Modelos salvos em: models/
-   ├─ scaler_{dataset}.pkl
-   └─ label_encoders_{dataset}.pkl
+4. Notebook 03_Baseline_e_Thompson.ipynb
+   ├─ Baseline determinístico (regra fixa)
+   ├─ Thompson Sampling (MABWiser) superando o baseline
+   └─ Tracking no MLflow (Etapa 7)
    ↓
-5. Pronto para Fase 2 (Baseline + Epsilon-Greedy)
+5. Notebook 04_Avaliacao_e_Golden_Set.ipynb → métricas + 5 casos de teste
+   ↓
+6. app/ (FastAPI) → serviço real, consome o mesmo warm start (arm_stats.csv)
+   ├─ Local: docker compose (deploy/docker-compose.yml)
+   └─ AWS: Terraform (deploy/aws/) — ECS Fargate + ALB + DynamoDB + RDS
+   ↓
+7. Falta: Etapa 8 — vídeo pitch (Demo Day)
 ```
 
 ---
 
 ## 🔧 Tecnologias
 
-| Componente | Tecnologia | Versão |
-|-----------|------------|--------|
-| Linguagem | Python | 3.12+ |
-| Data Science | Pandas, NumPy | 2.0+, 1.25+ |
-| ML | Scikit-learn | 1.4+ |
-| Visualização | Matplotlib, Seaborn | 3.8+, 0.13+ |
-| Notebooks | Jupyter | 1.0+ |
-| API | FastAPI | 0.105+ |
-| MLOps | MLflow | 2.10+ |
-| Config | Python-dotenv, PyYAML | 1.0+, 6.0+ |
+| Componente | Tecnologia |
+|-----------|------------|
+| Linguagem | Python 3.12+ |
+| Data Science | Pandas, NumPy |
+| Bandit | MABWiser (Thompson Sampling) |
+| Visualização | Matplotlib, Seaborn |
+| Notebooks | Jupyter |
+| API | FastAPI + Uvicorn |
+| MLOps | MLflow |
+| Deploy local | Docker / Docker Compose |
+| Deploy AWS | Terraform · ECR · ECS Fargate · ALB · DynamoDB · RDS PostgreSQL · S3 · CloudWatch · Secrets Manager |
+| AWS SDK | boto3 |
 
 ---
 
-## 📊 Fase 1: O que você vai aprender
+## 📊 O que este projeto cobre (Etapas 1-4)
 
-✅ **Exploração de Dados (EDA)**
-- Distribuição de variáveis
-- Correlações com target
-- Valores faltantes e outliers
+✅ **Exploração de Dados (EDA)** — distribuição de variáveis, correlações, missings/outliers
 
-✅ **CRÍTICO: Vazamento Temporal**
-- Identificar e remover vazamento
-- Por que `duration` não pode ser usado
-- Impacto em produção
+✅ **CRÍTICO: Vazamento Temporal** — `duration` removida (só é conhecida após a ligação); impacto em produção documentado
 
-✅ **Preparação de Dados**
-- Tratamento de missings
-- Encoding de categóricas
-- Normalização com StandardScaler
+✅ **Preparação de Dados** — tratamento de missings, encoding, normalização
 
-✅ **Pipeline Modular**
-- Funções reutilizáveis
-- Salvamento de modelos
-- Reprodutibilidade
+✅ **Baseline vs. Adaptativo** — regra fixa vs. Thompson Sampling, com ganho mensurado (+30,95% de conversão relativa)
 
----
-
-## ⚡ Sistema de Cache
-
-**Primeira execução:**
-```
-⬇️ Bank Marketing: 5s
-⬇️ Bank Marketing Dataset: 8s
-⬇️ Bank Term Deposit: 2s
-⬇️ Telemarketing JYB: 1s
-─────────────────────
-⏱️ Total: ~16s
-```
-
-**Próximas execuções:**
-```
-✅ Todas as bases: <4s (cache)
-⚡ 4x mais rápido!
-```
+✅ **Avaliação** — métricas do modelo + Golden Set com casos de teste
 
 ---
 
@@ -231,47 +311,18 @@ mle_tech_chalenge_5/
 
 Pelo `.gitignore`:
 ```
-❌ data/                    (Dados brutos e processados)
-❌ models/                  (Modelos treinados)
+❌ data/                    (Dados brutos, processados e estado do bandit)
 ❌ .env                     (Variáveis de ambiente)
-❌ .kaggle/kaggle.json      (Credenciais)
-❌ *.log                    (Logs)
-❌ mlruns/                  (Experimentos)
+❌ .kaggle/kaggle.json      (Credenciais Kaggle)
+❌ *.log, mlruns/           (Logs e experimentos locais do MLflow)
+❌ deploy/aws/terraform/*.tfstate*, .terraform/  (Estado do Terraform — contém a senha do RDS)
 ```
 
 ---
 
-## 🎯 Próximas Fases
+## 🎯 O que falta
 
-### Fase 2: Baseline + Epsilon-Greedy
-- Implementar modelo baseline
-- Implementar Epsilon-Greedy
-- Comparar performance
-- Gráficos de convergência
-
-### Fase 3: Avaliação
-- Golden Set com 5 clientes
-- Validação manual
-- Análise de coerência
-
-### Fase 4: API FastAPI
-- Endpoint `/recommend`
-- Endpoint `/arms-stats`
-- Documentação Swagger
-
-### Fase 5: MLflow
-- Iniciar o servidor local do MLflow antes dos experimentos
-- Rastreamento de experimentos
-- Versionamento de modelos
-- Dashboard em `http://localhost:5000`
-
-```bash
-mlflow server \
-  --backend-store-uri sqlite:///mlflow.db \
-  --default-artifact-root ./mlruns \
-  --host 0.0.0.0 \
-  --port 5000
-```
+Só a **Etapa 8 — Demo Day / Vídeo Pitch** (roteiro de até 5 min mostrando o problema, o modelo e a Etapa 5 — API — rodando na prática). Todo o resto (Etapas 0-7) está completo e validado, incluindo o deploy real na AWS. Detalhes em [doc/PLANO_EXECUCAO.md](doc/PLANO_EXECUCAO.md).
 
 ---
 
@@ -279,32 +330,33 @@ mlflow server \
 
 1. Clone o repositório
 2. Configure Kaggle (`.kaggle/KAGGLE_SETUP.md`)
-3. Execute Notebook Fase 1
-4. Implemente sua Fase
-5. Commit + Push
+3. Rode os notebooks (Etapas 1-4) ou suba a API via Docker Compose / AWS
+4. Commit + Push
 
 ---
 
 ## 📖 Documentação Completa
 
 - **Setup Kaggle:** `.kaggle/KAGGLE_SETUP.md`
-- **Guia Setup:** `doc/SETUP.md`
-- **Roadmap:** `PLANO_EXECUCAO.md`
-- **Arquitetura:** `doc/FASES_DETALHADAS.md`
-- **Briefing:** `doc/datathon.md`
+- **Status detalhado (fonte da verdade):** [doc/PLANO_EXECUCAO.md](doc/PLANO_EXECUCAO.md)
+- **Briefing oficial do datathon:** [doc/datathon.md](doc/datathon.md)
+- **Serviço FastAPI:** [app/README.md](app/README.md)
+- **Deploy local (Docker Compose):** [deploy/README.md](deploy/README.md)
+- **Deploy AWS (Terraform):** [deploy/aws/README.md](deploy/aws/README.md)
 
 ---
 
-## 📞 Status & Links
+## 📞 Status
 
-- **GitHub:** https://github.com/vagnerasilva/mle_tech_chalenge_5
-- **Status:** Fase 1 - EDA ✅
-- **Última atualização:** 2026-08-11
+- **Repositório:** `datathon-8mlet-grupo-04`
+- **Status:** 8/9 Etapas completas — falta só a Etapa 8 (Demo Day)
+- **Última atualização:** 2026-09-18
 
 ---
 
 **Pronto para começar?** 🚀
 ```bash
 source venv/bin/activate
+pip install -r requirements.txt
 jupyter notebook notebooks/01_EDA.ipynb
 ```
