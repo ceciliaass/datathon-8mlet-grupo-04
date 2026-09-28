@@ -21,9 +21,8 @@ Solução completa **end-to-end** para personalização adaptativa de canal de c
 | **5** | Serviço/API (FastAPI) | ✅ Completa |
 | **6** | Arquitetura-Alvo em Nuvem | ✅ Completa — **implantada de verdade na AWS** (não só documentada) |
 | **7** | Ciclo de Vida MLOps (MLflow) | ✅ Completa — validada rodando de verdade |
-| **8** | Demo Day / Vídeo Pitch | ⏳ Pendente (única etapa que falta) |
+| **8** | Demo Day / Vídeo Pitch | |
 
-Detalhamento fase a fase, incluindo bugs encontrados e corrigidos: [doc/PLANO_EXECUCAO.md](doc/PLANO_EXECUCAO.md).
 
 ---
 
@@ -123,7 +122,7 @@ cp deploy/mlflow.db deploy/mlflow.db.bak && tar -czf deploy/mlruns-backup.tar.gz
 
 Mais detalhes operacionais em [deploy/README.md](deploy/README.md).
 
-### Opção 2 — AWS (já implantado via Terraform)
+### Opção 2 — AWS (implantado via Terraform)
 
 O mesmo serviço também está implantado de verdade na AWS (região `us-east-2`): ECS Fargate + Application Load Balancer, com o bandit persistido em DynamoDB (em vez do arquivo local) e o MLflow com backend em RDS PostgreSQL + artifacts em S3.
 
@@ -338,7 +337,6 @@ Só a **Etapa 8 — Demo Day / Vídeo Pitch** (roteiro de até 5 min mostrando o
 ## 📖 Documentação Completa
 
 - **Setup Kaggle:** `.kaggle/KAGGLE_SETUP.md`
-- **Status detalhado (fonte da verdade):** [doc/PLANO_EXECUCAO.md](doc/PLANO_EXECUCAO.md)
 - **Briefing oficial do datathon:** [doc/datathon.md](doc/datathon.md)
 - **Serviço FastAPI:** [app/README.md](app/README.md)
 - **Deploy local (Docker Compose):** [deploy/README.md](deploy/README.md)
@@ -349,14 +347,8 @@ Só a **Etapa 8 — Demo Day / Vídeo Pitch** (roteiro de até 5 min mostrando o
 ## 📞 Status
 
 - **Repositório:** `datathon-8mlet-grupo-04`
-- **Status:** 8/9 Etapas completas — falta só a Etapa 8 (Demo Day)
-- **Última atualização:** 2026-09-18
+- **Status:** 9/9 Etapas completas
+- **Última atualização:** 2026-09-28
 
 ---
 
-**Pronto para começar?** 🚀
-```bash
-source venv/bin/activate
-pip install -r requirements.txt
-jupyter notebook notebooks/01_EDA.ipynb
-```
