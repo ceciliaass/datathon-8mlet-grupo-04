@@ -203,7 +203,8 @@ datathon-8mlet-grupo-04/
 │   ├── 02_Preparacao_da_Base.ipynb     ← Etapa 2: features + target
 │   ├── 03_Baseline_e_Thompson.ipynb    ← Etapa 3: baseline vs. Thompson Sampling + tracking MLflow (Etapa 7)
 │   ├── 04_Avaliacao_e_Golden_Set.ipynb ← Etapa 4: métricas + Golden Set
-│   └── 06_Arquitetura_Cloud.ipynb      ← Etapa 6: decisão AWS (resumo; detalhe em deploy/aws/)
+│   ├── 06_Arquitetura_Cloud.ipynb      ← Etapa 6: decisão AWS (resumo; detalhe em deploy/aws/)
+│   └── analise das bases.ipynb         ← rascunho exploratório (fora do fluxo numerado 01-06)
 │
 ├── 🐍 src/
 │   ├── __init__.py
@@ -212,19 +213,29 @@ datathon-8mlet-grupo-04/
 ├── 🚀 app/                             ← Etapa 5: serviço FastAPI (Thompson Sampling em produção)
 │   ├── main.py                         ← Endpoints: /, /health, /recomendar, /feedback, /stats
 │   ├── bandit_store.py                 ← Persistência do bandit (backend "file" local ou "dynamodb" na AWS)
+│   ├── mlflow_config.py                ← Config centralizada MLflow (detecta local vs. AWS)
+│   ├── mlflow_utils.py                 ← Funções reusáveis de tracking (Etapa 7)
 │   ├── schemas.py
-│   ├── demo_client.py                  ← Script de exemplo consumindo a API
+│   ├── demo_client.py                  ← Script de exemplo consumindo a API (local)
+│   ├── demo_client_aws.py              ← Idem, apontando pro endpoint AWS
 │   ├── requirements.txt
 │   └── README.md                       ← Documentação do serviço
 │
 ├── 🐳 deploy/                          ← Deploy local (Docker Compose) e AWS (Terraform)
 │   ├── Dockerfile.fastapi / Dockerfile.mlflow
 │   ├── mlflow-entrypoint.sh
-│   ├── docker-compose.yml
+│   ├── docker-compose.yml              ← MLflow + FastAPI buildados a partir dos Dockerfiles acima
+│   ├── docker-compose-rds.yml          ← Variante local apontando pro RDS/S3 da AWS
+│   ├── docker-compose-fix.yml          ← Variante alternativa (imagem oficial do MLflow)
+│   ├── migrate-mlflow-to-rds.sh / sync-mlflow.sh / sync-and-reset.sh / validate-mlflow-local.sh
+│   ├── scripts/                        ← control.sh, docker-control.sh, ecs-control.sh
 │   ├── README.md                       ← Deploy local
+│   ├── STATUS.md
 │   └── aws/                            ← Etapa 6: Terraform + IAM + runbook AWS
 │       ├── terraform/                  ← ECR, ECS Fargate, ALB, DynamoDB, RDS, S3, CloudWatch, Secrets Manager
 │       ├── iam/deploy-user-policy.json ← Política IAM do usuário de deploy
+│       ├── manage-ecs.sh / push_images.sh / seed_bandit_arms.py
+│       ├── OPERATIONS.md
 │       └── README.md                   ← Runbook: deploy, verificação, pausa, teardown, custo
 │
 ├── 📊 data/                            ← Dados brutos/processados e estado do bandit (não versiona)
@@ -232,13 +243,15 @@ datathon-8mlet-grupo-04/
 │
 ├── 📚 doc/
 │   ├── datathon.md                     ← Briefing oficial do datathon
-│   └── PLANO_EXECUCAO.md               ← Status detalhado de cada etapa (fonte da verdade do progresso)
+│   ├── PLANO_EXECUCAO.md               ← Status detalhado de cada etapa (fonte da verdade do progresso)
+│   └── POSTECH - MLET - DATATHON.pdf   ← Enunciado oficial (PDF)
 │
 ├── 🔑 .kaggle/
 │   └── KAGGLE_SETUP.md                 ← Como configurar token Kaggle
 │
 ├── 📋 README.md                        ← Este arquivo
 ├── 📦 requirements.txt                 ← Dependências Python (notebooks)
+├── mlflow.db                           ← Banco SQLite do MLflow local (versionado apesar do .gitignore genérico p/ *.db)
 ├── .env.example                        ← Template de variáveis de ambiente
 ├── .python-version                     ← 3.12
 └── .gitignore
