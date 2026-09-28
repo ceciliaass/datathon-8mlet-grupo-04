@@ -150,7 +150,7 @@ Foi além do exigido pelo enunciado (que pede só 1-2 parágrafos documentando a
 
 ### Status: ✅ COMPLETA — verificada rodando o Docker Compose local
 
-Correção em relação à avaliação anterior: o tracking da Etapa 7 **não** está no notebook `07_MLflow_Tracking.ipynb` (que é de fato só um stub) — ele está implementado dentro do próprio `03_Baseline_e_Thompson.ipynb`, numa seção chamada "Etapa 7 - Tracking com MLflow". Achado ao inspecionar o banco `mlflow.db` diretamente.
+Correção em relação à avaliação anterior: o tracking da Etapa 7 **não** estava no notebook `07_MLflow_Tracking.ipynb` (que era de fato só um stub, sem conteúdo relevante — removido do repo) — ele está implementado dentro do próprio `03_Baseline_e_Thompson.ipynb`, numa seção chamada "Etapa 7 - Tracking com MLflow". Achado ao inspecionar o banco `mlflow.db` diretamente.
 
 - ✅ Experimento `datathon-bandit-canal` (run `etapa3_baseline_vs_thompson`) registra exatamente o que a Etapa 3 pede:
   - **Params:** `dataset`, `arms`, `baseline_policy` ("regra fixa (sempre telephone)"), `algoritmo_adaptativo` ("MABWiser ThompsonSampling"), `seed`, `test_size`, `contextual_rate_prior_weight`, `best_arm_oracle_referencia`
@@ -187,7 +187,7 @@ A interface estará disponível em `http://localhost:5000` (ou `:5002` via Docke
 
 ### Status: ❌ Não iniciado
 
-- ⚠️ `notebooks/08_Demo_Day.ipynb` é apenas um checklist que verifica se artefatos existem em disco — não é o roteiro/demo em si
+- ⚠️ `notebooks/08_Demo_Day.ipynb` era apenas um checklist que verifica se artefatos existem em disco (não o roteiro/demo em si) — sem conteúdo relevante, removido do repo
 - ❌ Vídeo pitch (até 5 min) ainda não gravado
 
 ### Deliverables pendentes

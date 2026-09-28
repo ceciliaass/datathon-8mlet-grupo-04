@@ -25,7 +25,7 @@ datathon-8mlet-grupo-04/
 ├── notebooks/
 │   ├── 03_Baseline_e_Thompson.ipynb      ← MODIFICAR (adicionar tracking)
 │   ├── 04_Avaliacao_e_Golden_Set.ipynb   ← MODIFICAR (adicionar tracking)
-│   └── 07_MLflow_Tracking.ipynb          ← CRIAR (setup e demo)
+│   └── 07_MLflow_Tracking.ipynb          ← CRIAR (setup e demo) [nunca saiu do stub; removido do repo depois]
 │
 ├── deploy/
 │   ├── docker-compose.yml         ← VERIFICAR (MLflow já está lá)

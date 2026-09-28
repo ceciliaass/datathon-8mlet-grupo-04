@@ -21,7 +21,7 @@ Solução completa **end-to-end** para personalização adaptativa de canal de c
 | **5** | Serviço/API (FastAPI) | ✅ Completa |
 | **6** | Arquitetura-Alvo em Nuvem | ✅ Completa — **implantada de verdade na AWS** (não só documentada) |
 | **7** | Ciclo de Vida MLOps (MLflow) | ✅ Completa — validada rodando de verdade |
-| **8** | Demo Day / Vídeo Pitch | |
+| **8** | Demo Day / Vídeo Pitch | ✅ Completa  |
 
 
 ---
@@ -40,7 +40,7 @@ O projeto usa uma única base Kaggle do início ao fim (EDA, baseline, bandit e 
 
 ## 🚀 Quick Start
 
-### 1️⃣ Setup (2 min)
+### 1️⃣ Setup 
 
 ```bash
 # Ambiente virtual
@@ -51,7 +51,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2️⃣ Configurar Kaggle (2 min)
+### 2️⃣ Configurar Kaggle 
 
 ```bash
 # 1. Gerar token em: https://www.kaggle.com/settings/account
@@ -203,9 +203,7 @@ datathon-8mlet-grupo-04/
 │   ├── 02_Preparacao_da_Base.ipynb     ← Etapa 2: features + target
 │   ├── 03_Baseline_e_Thompson.ipynb    ← Etapa 3: baseline vs. Thompson Sampling + tracking MLflow (Etapa 7)
 │   ├── 04_Avaliacao_e_Golden_Set.ipynb ← Etapa 4: métricas + Golden Set
-│   ├── 06_Arquitetura_Cloud.ipynb      ← Etapa 6: decisão AWS (resumo; detalhe em deploy/aws/)
-│   ├── 07_MLflow_Tracking.ipynb        ← stub (tracking real está no notebook 03)
-│   └── 08_Demo_Day.ipynb               ← Etapa 8: pendente
+│   └── 06_Arquitetura_Cloud.ipynb      ← Etapa 6: decisão AWS (resumo; detalhe em deploy/aws/)
 │
 ├── 🐍 src/
 │   ├── __init__.py
