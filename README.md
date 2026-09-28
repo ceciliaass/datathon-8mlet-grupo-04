@@ -9,7 +9,7 @@ Solução completa **end-to-end** para personalização adaptativa de canal de c
 
 ---
 
-## 🚀 Status Atual — 8 de 9 Etapas completas
+## 🚀 Status Atual — 9 de 9 Etapas completas
 
 | Etapa | Objetivo | Status |
 |------|----------|--------|
@@ -290,7 +290,7 @@ datathon-8mlet-grupo-04/
 
 ---
 
-## 📊 O que este projeto cobre (Etapas 1-4)
+## 📊 O que este projeto cobre (Etapas 1-8)
 
 ✅ **Exploração de Dados (EDA)** — distribuição de variáveis, correlações, missings/outliers
 
@@ -317,9 +317,6 @@ Pelo `.gitignore`:
 
 ---
 
-## 🎯 O que falta
-
-Só a **Etapa 8 — Demo Day / Vídeo Pitch** (roteiro de até 5 min mostrando o problema, o modelo e a Etapa 5 — API — rodando na prática). Todo o resto (Etapas 0-7) está completo e validado, incluindo o deploy real na AWS. Detalhes em [doc/PLANO_EXECUCAO.md](doc/PLANO_EXECUCAO.md).
 
 ---
 
