@@ -1,4 +1,4 @@
-| ![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MLflow](https://img.shields.io/badge/MLOps-MLflow-0194E2?logo=mlflow) ![Thompson Sampling](https://img.shields.io/badge/Algorithm-Thompson%20Sampling-blue.svg) ![AWS](https://img.shields.io/badge/Deploy-AWS%20(Terraform)-FF9900?logo=amazonaws) ![Status](https://img.shields.io/badge/Status-8%2F9%20Etapas-green.svg) |
+| ![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg) ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688?logo=fastapi) ![MLflow](https://img.shields.io/badge/MLOps-MLflow-0194E2?logo=mlflow) ![Thompson Sampling](https://img.shields.io/badge/Algorithm-Thompson%20Sampling-blue.svg) ![AWS](https://img.shields.io/badge/Deploy-AWS%20(Terraform)-FF9900?logo=amazonaws) ![Status](https://img.shields.io/badge/Status-9%2F9%20Etapas-green.svg) |
 |:----------------------------------------------------------------------------------------------------------------------------------------:|
 
 # 🎯 Datathon — Plataforma de Experimentação Adaptativa para Ofertas Financeiras
@@ -21,7 +21,7 @@ Solução completa **end-to-end** para personalização adaptativa de canal de c
 | **5** | Serviço/API (FastAPI) | ✅ Completa |
 | **6** | Arquitetura-Alvo em Nuvem | ✅ Completa — **implantada de verdade na AWS** (não só documentada) |
 | **7** | Ciclo de Vida MLOps (MLflow) | ✅ Completa — validada rodando de verdade |
-| **8** | Demo Day / Vídeo Pitch | ✅ Completa  |
+| **8** | Demo Day / Vídeo Pitch | ✅ Completa — [vídeo de apresentação](https://drive.google.com/file/d/1TH3DYvizt4EK0DsREHkX-L_sfjcHJhtP/view?usp=sharing) |
 
 
 ---
@@ -145,6 +145,14 @@ O mesmo serviço também está implantado de verdade na AWS (região `us-east-2`
 > ⚠️ A UI do MLflow só funciona nesse endpoint porque `MLFLOW_SERVER_CORS_ALLOWED_ORIGINS` está setado pro DNS do ALB no task definition ([deploy/aws/terraform/ecs.tf](deploy/aws/terraform/ecs.tf)) — MLflow ≥3.16 bloqueia por padrão (403/`INTERNAL_ERROR` na UI) chamadas de origem não-localhost sem essa allowlist. Se o DNS do ALB mudar (ex.: recriação do load balancer), essa env var precisa ser atualizada junto.
 
 Runbook completo (criar o usuário IAM, deploy do zero, verificação, pausar, destruir, custo estimado) em [deploy/aws/README.md](deploy/aws/README.md).
+
+---
+
+## 🎥 Vídeo de Apresentação (Etapa 8)
+
+Roteiro de até 5 min mostrando o problema, o modelo (baseline vs. Thompson Sampling) e a Etapa 5 — API — rodando na prática, local e na AWS.
+
+[Acesse aqui](https://drive.google.com/file/d/1TH3DYvizt4EK0DsREHkX-L_sfjcHJhtP/view?usp=sharing)
 
 ---
 
@@ -281,7 +289,9 @@ datathon-8mlet-grupo-04/
    ├─ Local: docker compose (deploy/docker-compose.yml)
    └─ AWS: Terraform (deploy/aws/) — ECS Fargate + ALB + DynamoDB + RDS
    ↓
-7. Falta: Etapa 8 — vídeo pitch (Demo Day)
+7. Notebook 06_Arquitetura_Cloud.ipynb → decisão AWS (resumo)
+   ↓
+8. Vídeo de Apresentação (Demo Day) → link acima
 ```
 
 ---
