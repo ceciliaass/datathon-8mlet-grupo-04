@@ -81,9 +81,21 @@ jupyter notebook notebooks/04_Avaliacao_e_Golden_Set.ipynb # Etapa 4: métricas 
 
 ---
 
-## 🖥️ Como usar a API (Etapa 5)
+# 🖥️ Como usar a API (Etapa 5)
 
-O serviço (`app/`) é o mesmo em ambos os casos — só muda onde ele está rodando. Endpoints disponíveis: `GET /docs` (Swagger), `GET /health`, `POST /recomendar`, `POST /feedback`, `GET /stats`.
+O serviço (`app/`) é o mesmo em ambos os casos — só muda onde ele está rodando.
+
+### 📡 Endpoints da API
+
+GET /health → Status da API.
+
+POST /recomendar → Recomenda o canal de contato (cellular/telephone) para um cliente e registra a decisão.
+
+POST /feedback → Registra o resultado real (conversão ou não) de uma recomendação e atualiza o bandit.
+
+GET /stats → Estado atual do bandit (crença por braço) — observabilidade do aprendizado.
+
+GET /docs → Documentação interativa (Swagger), gerada automaticamente pelo FastAPI.
 
 ### Opção 1 — Local via Docker Compose (desenvolvimento)
 
