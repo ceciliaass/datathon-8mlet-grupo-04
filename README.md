@@ -19,8 +19,8 @@ Solução completa **end-to-end** para personalização adaptativa de canal de c
 | **3** | Baseline + Thompson Sampling | ✅ Completa (supera o baseline: +30,95% de conversão relativa) |
 | **4** | Avaliação e Golden Set | ✅ Completa |
 | **5** | Serviço/API (FastAPI) | ✅ Completa |
-| **6** | Arquitetura-Alvo em Nuvem | ✅ Completa — **implantada de verdade na AWS** (não só documentada) |
-| **7** | Ciclo de Vida MLOps (MLflow) | ✅ Completa — validada rodando de verdade |
+| **6** | Arquitetura-Alvo em Nuvem | ✅ Completa — **implantada na AWS** (documentada) |
+| **7** | Ciclo de Vida MLOps (MLflow) | ✅ Completa — validada rodando|
 | **8** | Demo Day / Vídeo Pitch | ✅ Completa — [vídeo de apresentação](https://drive.google.com/file/d/1TH3DYvizt4EK0DsREHkX-L_sfjcHJhtP/view?usp=sharing) |
 
 
