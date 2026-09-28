@@ -257,7 +257,7 @@ datathon-8mlet-grupo-04/
 └── .gitignore
 ```
 
-> `config.yaml`/`config/config.yaml` e `deploy/PLAN.md` também existem no repo, mas são artefatos do planejamento inicial (fase 1) e não refletem o que foi de fato implementado — a fonte da verdade é `doc/PLANO_EXECUCAO.md`.
+
 
 ---
 
