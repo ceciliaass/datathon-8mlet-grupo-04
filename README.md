@@ -109,6 +109,35 @@ docker compose -f deploy/docker-compose.yml logs -f --tail=200
 
 > O compose mapeia a porta do container do MLflow (5000) para `5002` no host, para não colidir se você já tiver algo rodando na 5000.
 
+**Arquitetura local (Docker Compose):**
+
+```mermaid
+flowchart TB
+    User(["Você / Browser"])
+
+    subgraph Host["Host (localhost)"]
+        subgraph Compose["Docker Compose — rede datathon_net"]
+            FastAPI["fastapi<br/>Thompson Sampling<br/>:8000"]
+            MLflow["mlflow<br/>MLflow Server<br/>:5000"]
+        end
+
+        DB[("mlflow.db<br/>SQLite, bind mount")]
+        Mlruns[("mlruns/<br/>artifacts, bind mount")]
+        Data[("data/<br/>bind mount")]
+    end
+
+    User -->|":8000/docs /health /recomendar /feedback /stats"| FastAPI
+    User -->|":5002 → 5000 (UI)"| MLflow
+
+    FastAPI -->|"MLFLOW_TRACKING_URI=http://mlflow:5000"| MLflow
+    FastAPI --> Data
+
+    MLflow --> DB
+    MLflow --> Mlruns
+```
+
+Diferença-chave pra AWS: aqui o backend store é o `mlflow.db` (SQLite) e os artifacts vão pro `mlruns/` local, ambos montados como volume no container do MLflow — sem RDS/S3, só funciona com uma réplica de cada serviço (ver [deploy/docker-compose.yml](deploy/docker-compose.yml)).
+
 Alternativa mais leve, sem Docker (só o MLflow, rodando na porta 5000 nesse caso):
 ```bash
 mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000
