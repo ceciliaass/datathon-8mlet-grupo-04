@@ -21,7 +21,7 @@ Solução completa **end-to-end** para personalização adaptativa de canal de c
 | **5** | Serviço/API (FastAPI) | ✅ Completa |
 | **6** | Arquitetura-Alvo em Nuvem | ✅ Completa — **implantada na AWS** (documentada) |
 | **7** | Ciclo de Vida MLOps (MLflow) | ✅ Completa — validada rodando|
-| **8** | Demo Day / Vídeo Pitch | ✅ Completa — [vídeo de apresentação](https://drive.google.com/file/d/1TH3DYvizt4EK0DsREHkX-L_sfjcHJhtP/view?usp=sharing) |
+| **8** | Demo Day / Vídeo Pitch | ✅ Completa — [vídeo de apresentação](https://drive.google.com/file/d/1ykgZoMRWUj9svqdcHMJGMJ81EYCMlQFf/view?usp=sharing) |
 
 
 ---
@@ -193,7 +193,7 @@ Runbook completo (criar o usuário IAM, deploy do zero, verificação, pausar, d
 
 Roteiro de até 5 min mostrando o problema, o modelo (baseline vs. Thompson Sampling) e a Etapa 5 — API — rodando na prática, local e na AWS.
 
-[Acesse aqui](https://drive.google.com/file/d/1TH3DYvizt4EK0DsREHkX-L_sfjcHJhtP/view?usp=sharing)
+[Acesse aqui](https://drive.google.com/file/d/1ykgZoMRWUj9svqdcHMJGMJ81EYCMlQFf/view?usp=sharing)
 
 ---
 
